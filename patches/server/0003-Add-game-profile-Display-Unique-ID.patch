@@ -5,10 +5,21 @@ Subject: [PATCH] Add game profile Display Unique ID
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java b/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java
-index 2751ce7f1556da07ef853807a588f096adf6ef7f..313202530c7c44eb1afd085913fbb79ace7e0856 100644
+index 2751ce7f1556da07ef853807a588f096adf6ef7f..c6f641d45296abafed4e24ca3ba3ba9e9311539e 100644
 --- a/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java
 +++ b/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java
-@@ -69,6 +69,19 @@ public class CraftPlayerProfile implements PlayerProfile {
+@@ -33,6 +33,10 @@ public class CraftPlayerProfile implements PlayerProfile {
+         this.profile = new GameProfile(id, name);
+     }
+ 
++    public CraftPlayerProfile(UUID id, UUID displayId, String name) {
++        this.profile = new GameProfile(id, displayId, name);
++    }
++
+     public CraftPlayerProfile(GameProfile profile) {
+         Validate.notNull(profile, "GameProfile cannot be null!");
+         this.profile = profile;
+@@ -69,6 +73,19 @@ public class CraftPlayerProfile implements PlayerProfile {
          return prev.getId();
      }
  
@@ -28,6 +39,15 @@ index 2751ce7f1556da07ef853807a588f096adf6ef7f..313202530c7c44eb1afd085913fbb79a
      @Nullable
      @Override
      public String getName() {
+@@ -124,7 +141,7 @@ public class CraftPlayerProfile implements PlayerProfile {
+ 
+     @Override
+     public CraftPlayerProfile clone() {
+-        CraftPlayerProfile clone = new CraftPlayerProfile(this.getId(), this.getName());
++        CraftPlayerProfile clone = new CraftPlayerProfile(this.getId(), this.getDisplayId(), this.getName());
+         clone.setProperties(getProperties());
+         return clone;
+     }
 diff --git a/src/main/java/com/mojang/authlib/GameProfile.java b/src/main/java/com/mojang/authlib/GameProfile.java
 index 1369f0e680bd581a7fb93fb37ef5ab3d6aee5c98..215fc1cec4c4eb5d3854d4004ee7395f1d0cc0c5 100644
 --- a/src/main/java/com/mojang/authlib/GameProfile.java

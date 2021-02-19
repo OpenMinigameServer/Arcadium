@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: NickAc <32451103+NickAcPT@users.noreply.github.com>
+Date: Fri, 19 Feb 2021 04:36:41 +0000
+Subject: [PATCH] OpenMinigameServer contributors and NickAc agree to Mojang's
+ EULA
+
+
+diff --git a/src/main/java/net/minecraft/server/EULA.java b/src/main/java/net/minecraft/server/EULA.java
+index f88cf526d272fe47b5a474c0b344b748ee4009fa..092b537fd267b328c5db80d71d12c1727fc60e28 100644
+--- a/src/main/java/net/minecraft/server/EULA.java
++++ b/src/main/java/net/minecraft/server/EULA.java
+@@ -69,8 +69,8 @@ public class EULA {
+                 try {
+                     Properties properties = new Properties();
+ 
+-                    properties.setProperty("eula", "false");
+-                    properties.store(outputstream, "By changing the setting below to TRUE you are indicating your agreement to our EULA (https://account.mojang.com/documents/minecraft_eula).\nYou also agree that tacos are tasty, and the best food in the world.");  // Paper - fix lag; // Tuinity - Tacos are disgusting // Purpur - no they're not
++                    properties.setProperty("eula", "true");
++                    properties.store(outputstream, "By changing the setting below to TRUE you are indicating your agreement to our EULA (https://account.mojang.com/documents/minecraft_eula).");  // Paper - fix lag; // Tuinity - Tacos are disgusting // Purpur - no they're not // Arcadium - yes they are
+                 } catch (Throwable throwable1) {
+                     throwable = throwable1;
+                     throw throwable1;
+diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
+index 1c6dbd29c8414b3e33aedcc50bee5b5d9ce134d1..a84e2d84926f5bcd164799ea064806c79b0c05a8 100644
+--- a/src/main/java/net/minecraft/server/Main.java
++++ b/src/main/java/net/minecraft/server/Main.java
+@@ -87,6 +87,7 @@ public class Main {
+                 System.err.println( "If you do not agree to the above EULA please stop your server and remove this flag immediately." );
+             }
+             // Spigot End
++            eulaAgreed = true; // Arcadium - NickAc agrees to Mojang's EULA
+             if (!eula.a() && !eulaAgreed) { // Spigot
+                 Main.LOGGER.info("You need to agree to the EULA in order to run the server. Go to eula.txt for more info.");
+                 return;

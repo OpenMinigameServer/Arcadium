@@ -22,6 +22,8 @@ toothpick {
     upstream = "Purpur"
     upstreamBranch = "origin/ver/$minecraftVersion"
 
+    paperclipName = "arcadiumclip"
+
     server {
         project = project(":$forkNameLowercase-server")
         patchesDir = rootProject.projectDir.resolve("patches/server")

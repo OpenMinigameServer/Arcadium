@@ -4,6 +4,30 @@ Date: Fri, 19 Feb 2021 05:17:52 +0000
 Subject: [PATCH] Add game profile Display Unique ID
 
 
+diff --git a/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java b/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java
+index 2751ce7f1556da07ef853807a588f096adf6ef7f..313202530c7c44eb1afd085913fbb79ace7e0856 100644
+--- a/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java
++++ b/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java
+@@ -69,6 +69,19 @@ public class CraftPlayerProfile implements PlayerProfile {
+         return prev.getId();
+     }
+ 
++    @Override
++    public UUID getDisplayId() {
++        return profile.getDisplayId();
++    }
++
++    @Override
++    public UUID setDisplayId(UUID displayUuid) {
++        GameProfile prev = this.profile;
++        this.profile = new GameProfile(prev.getId(), displayUuid, prev.getName());
++        copyProfileProperties(prev, this.profile);
++        return prev.getId();
++    }
++
+     @Nullable
+     @Override
+     public String getName() {
 diff --git a/src/main/java/com/mojang/authlib/GameProfile.java b/src/main/java/com/mojang/authlib/GameProfile.java
 index 1369f0e680bd581a7fb93fb37ef5ab3d6aee5c98..215fc1cec4c4eb5d3854d4004ee7395f1d0cc0c5 100644
 --- a/src/main/java/com/mojang/authlib/GameProfile.java

@@ -1,7 +1,5 @@
 {
-    "nmsImports": [
-        "PacketPlayOutPlayerInfo"
-    ],
+    "nmsImports": [],
     "libraryImports": [
         {
             "group": "com.mojang",

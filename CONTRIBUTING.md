@@ -1,28 +1,27 @@
-Contributing to Purpur
+Contributing to Arcadium
 ==========================
-Purpur has a very lenient policy towards PRs, but would prefer that you try and adhere to the following guidelines.
 
 ## Understanding Patches
-Patches to Purpur are very simple, but center around the directories 'Purpur-API' and 'Purpur-Server'
+Patches to Arcadium are very simple, but center around the directories 'Arcadium-API' and 'Arcadium-Server'
 
 Assuming you already have forked the repository:
 
 1. Pull the latest changes from the main repository
 2. Update the Paper submodule if necessary: `git submodule update --init --recursive` and `./gradlew setupUpstream`
-3. Type `./gradlew applyPatches` to apply the latest Purpur patches
-4. cd into `Purpur-Server` for server changes, and `Purpur-API` for API changes
+3. Type `./gradlew applyPatches` to apply the latest Arcadium patches
+4. cd into `Arcadium-Server` for server changes, and `Arcadium-API` for API changes
 
 These directories aren't git repositories in the traditional sense:
 
-- Every single commit in Purpur-Server/API is a patch. 
-- 'origin/master' points to a directory similar to Purpur-Server/API but for Paper
+- Every single commit in Arcadium-Server/API is a patch. 
+- 'origin/master' points to a directory similar to Arcadium-Server/API but for Paper
 - Typing `git status` should show that we are 10 or 11 commits ahead of master, meaning we have 10 or 11 patches that Paper doesn't
-  - If it says something like `212 commits ahead, 207 commits behind`, then type `git fetch` to update purpur
+  - If it says something like `212 commits ahead, 207 commits behind`, then type `git fetch` to update Arcadium
 
 ## Adding Patches
-Adding patches to Purpur is very simple:
+Adding patches to Arcadium is very simple:
 
-1. Modify `Purpur-Server` and/or `Purpur-API` with the appropriate changes
+1. Modify `Arcadium-Server` and/or `Arcadium-API` with the appropriate changes
 2. `cd` into the server/api directory you want to add a patch to
 3. Type `git add .` to add your changes
 4. Run `git commit` with the desired patch message
@@ -30,27 +29,27 @@ Adding patches to Purpur is very simple:
 6. Run `./gradlew rebuildPatches` in the main directory to convert your commit into a new patch
 7. PR your patches back to this repository
 
-Your commit will be converted into a patch that you can then PR into Purpur
+Your commit will be converted into a patch that you can then PR into Arcadium
 
 ## Help! I can't find the file I'm looking for!
-By default, Purpur (and upstream) only import files that we make changes to.
-If you would like to make changes to a file that isn't present in Purpur-Server's source directory, you
+By default, Arcadium (and upstream) only import files that we make changes to.
+If you would like to make changes to a file that isn't present in Arcadium-Server's source directory, you
 just need to add it to our import script to be ran during the patch process.
 
 1. Save (rebuild) any patches you are in the middle of working on!
 2. Identify the names of the files you want to import.
    - A complete list of all possible file names can be found at ```./Paper/work/Minecraft/$MCVER/net/minecraft/server```
-3. Open the file at `./buildSrc/src/main/kotlin/MCDevImports.kt` and add the name of your file to the `nmsImports` set.
+3. Open the file at `./mcdevimports.json` and add the name of your file to the `nmsImports` set.
 4. Re-patch the server to make the imports take effect `./gradlew applyPatches`
 5. Edit away!
 
-This change is temporary! DO NOT COMMIT CHANGES TO THE `MCDevImports.kt` FILE!
-Once you have made your changes to the new file, and rebuilt patches, you may undo your changes to `MCDevImports.kt`
+This change is temporary! DO NOT COMMIT CHANGES TO THE `mcdevimports.json` FILE!
+Once you have made your changes to the new file, and rebuilt patches, you may undo your changes to `mcdevimports.json`
 
 Any file modified in a patch file gets automatically imported, so you only need this temporarily
 to import it to create the first patch.
 
-To undo your changes to the file, type `git checkout buildSrc/src/main/kotlin/MCDevImports.kt`, or just remove the import lines you added previously.
+To undo your changes to the file, type `git checkout mcdevimports.json`, or just remove the import lines you added previously.
 
 ## Modifying Patches
 Modifying previous patches is a bit more complex:
@@ -95,23 +94,23 @@ We'll accept changes that make sense. You should be able to justify their existe
 While we will fix minor formatting issues, you should stick to the guide below when making and submitting changes.
 
 ## Formatting
-All modifications to non-Purpur files should be marked
-- Multi line changes start with `// Purpur start` and end with `// Purpur end`
-- You can put a messages with a change if it isn't obvious, like this: `// Purpur start - reason`
+All modifications to non-Arcadium files should be marked
+- Multi line changes start with `// Arcadium start` and end with `// Arcadium end`
+- You can put a messages with a change if it isn't obvious, like this: `// Arcadium start - reason`
   - Should generally be about the reason the change was made, what it was before, or what the change is
-  - Multi-line messages should start with `// Purpur start` and use `/* Multi line message here */` for the message itself
-- Single line changes should have `// Purpur` or `// Purpur - reason`
+  - Multi-line messages should start with `// Arcadium start` and use `/* Multi line message here */` for the message itself
+- Single line changes should have `// Arcadium` or `// Arcadium - reason`
 - For example:
 ```java
-entity.getWorld().dontbeStupid(); // Purpur - was beStupid() which is bad
+entity.getWorld().dontbeStupid(); // Arcadium - was beStupid() which is bad
 entity.getFriends().forEach(Entity::explode());
 entity.a();
 entity.b();
-// Purpur start - use plugin-set spawn
+// Arcadium start - use plugin-set spawn
 // entity.getWorld().explode(entity.getWorld().getSpawn());
 Location spawnLocation = ((CraftWorld)entity.getWorld()).getSpawnLocation();
 entity.getWorld().explode(new BlockPosition(spawnLocation.getX(), spawnLocation.getY(), spawnLocation.getZ()));
-// Purpur end
+// Arcadium end
 ```
 - We generally follow usual java style, or what is programmed into most IDEs and formatters by default
   - This is also known as oracle style
@@ -120,7 +119,7 @@ entity.getWorld().explode(new BlockPosition(spawnLocation.getX(), spawnLocation.
   - When in doubt, use the same style as the surrounding code
   
 ## Patch Notes
-When submitting patches to Purpur, we may ask you to add notes to the patch header.
+When submitting patches to Arcadium, we may ask you to add notes to the patch header.
 While we do not require it for all changes, you should add patch notes when the changes you're making are technical or complex.
 It is very likely that your patch will remain long after we've all forgotten about the details of your PR, patch notes will help
 us maintain it without having to dig back through GitHub history looking for your PR.
@@ -128,7 +127,7 @@ us maintain it without having to dig back through GitHub history looking for you
 These notes should express the intent of your patch, as well as any pertinent technical details we should keep in mind long-term.
 Ultimately, they exist to make it easier for us to maintain the patch across major version changes.
 
-If you add a long message to your commit in the Purpur-Server/API repos, the rebuildPatches command will handle these patch
+If you add a long message to your commit in the Arcadium-Server/API repos, the rebuildPatches command will handle these patch
 notes automatically as part of generating the patch file. Otherwise if you're careful they can be added by hand (though you should be careful when doing this, and run it through a patch and rebuild cycle once or twice).
 
 ```patch
@@ -157,50 +156,22 @@ index a92bf8967..d0ab87d0f 100644
 ```
 
 ## Obfuscation Helpers
-In an effort to make future updates easier on ourselves, Purpur tries to use obfuscation helpers whenever possible. The purpose of these helpers is to make the code more readable. These helpers should be be made as easy to inline as possible by the JVM whenever possible.
+In an effort to make future updates easier on ourselves, Arcadium tries to use obfuscation helpers whenever possible. The purpose of these helpers is to make the code more readable. These helpers should be be made as easy to inline as possible by the JVM whenever possible.
 
 An obfuscation helper to get an obfuscated field may be as simple as something like this:
 ```java
-public final int getStuckArrows() { return this.bY(); } // Purpur - OBFHELPER
+public final int getStuckArrows() { return this.bY(); } // Arcadium - OBFHELPER
 ```
 Or it may be as complex as forwarding an entire method so that it can be overriden later:
 ```java
 public boolean be() {
-    // Purpur start - OBFHELPER
+    // Arcadium start - OBFHELPER
     return this.pushedByWater();
 }
 
 public boolean pushedByWater() {
-    // Purpur end
+    // Arcadium end
     return true;
 }
 ```
 While they may not always be done in exactly the same way each time, the general goal is always to improve readability and maintainability, so use your best judgement.
-
-## Configuration files
-To use a configurable value in your patch, add a new entry in either ```PurpurConfig``` or ```PurpurWorldConfig```. Use the former if a value must remain the same throughout all worlds, or the latter if it can change between worlds. The latter is preferred whenever possible.
-
-### PurpurConfig example:
-```java
-public static boolean saveEmptyScoreboardTeams = false;
-private static void saveEmptyScoreboardTeams() {
-    saveEmptyScoreboardTeams = getBoolean("settings.save-empty-scoreboard-teams", false);
-}
-```
-Notice that the field is always public, but the setter is always private. This is important to the way the configuration generation system works. To access this value, reference it as you would any other static value:
-```java
-if (!PurpurConfig.saveEmptyScoreboardTeams) {
-```
-
-### PurpurWorldConfig example:
-```java
-public boolean useInhabitedTime = true;
-private void useInhabitedTime() {
-    useInhabitedTime = getBoolean("use-chunk-inhabited-timer", true);
-}
-```
-Again, notice that the field is always public, but the setter is always private. To access this value, you'll need an instance of the ```net.minecraft.World``` object:
-
-```java
-return this.world.purpurConfig.useInhabitedTime ? this.w : 0;
-```

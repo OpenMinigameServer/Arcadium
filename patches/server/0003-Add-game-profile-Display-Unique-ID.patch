@@ -122,10 +122,10 @@ index 1369f0e680bd581a7fb93fb37ef5ab3d6aee5c98..215fc1cec4c4eb5d3854d4004ee7395f
 +    }
  }
 diff --git a/src/main/java/net/minecraft/server/EntityPlayer.java b/src/main/java/net/minecraft/server/EntityPlayer.java
-index ebff0ef7f9bf38562265fc2cd4f81f59fda2278d..0e02e95dc023a29b3ebf7b2db66590f83c0067ef 100644
+index d9206191e653df877e327b6538eaa321c48be789..19aeb737699758da8d322b5b6ced23c8dac44bd3 100644
 --- a/src/main/java/net/minecraft/server/EntityPlayer.java
 +++ b/src/main/java/net/minecraft/server/EntityPlayer.java
-@@ -1913,6 +1913,7 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
+@@ -1893,6 +1893,7 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
  
      @Override
      public void sendMessage(IChatBaseComponent ichatbasecomponent, UUID uuid) {
@@ -220,10 +220,10 @@ index 9a48a4e90c1b1cbcc8dc604fdf0f20a6d0f3bd22..4858a95e7918f879d08f0f0db52fcfc9
              return this.b;
          }
 diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
-index 1471785da53a18edf31a20212f3cc6c19de92822..c29c8bb55673476a06759a0a46dcebd1fd55e693 100644
+index 7137759447e65c96abfe3b5ef181b8ce33294df4..c734162576283694ae0d68e77ddfa9d98b34ca24 100644
 --- a/src/main/java/net/minecraft/server/PlayerConnection.java
 +++ b/src/main/java/net/minecraft/server/PlayerConnection.java
-@@ -1835,6 +1835,21 @@ public class PlayerConnection implements PacketListenerPlayIn {
+@@ -1841,6 +1841,21 @@ public class PlayerConnection implements PacketListenerPlayIn {
              }
          }
  
@@ -245,7 +245,7 @@ index 1471785da53a18edf31a20212f3cc6c19de92822..c29c8bb55673476a06759a0a46dcebd1
          // CraftBukkit start
          if (packet == null || this.processedDisconnect) { // Spigot
              return;
-@@ -1963,7 +1978,7 @@ public class PlayerConnection implements PacketListenerPlayIn {
+@@ -1969,7 +1984,7 @@ public class PlayerConnection implements PacketListenerPlayIn {
              } else {
                  ChatMessage chatmessage = new ChatMessage("chat.type.text", new Object[]{this.player.getScoreboardDisplayName(), s});
  
@@ -255,10 +255,10 @@ index 1471785da53a18edf31a20212f3cc6c19de92822..c29c8bb55673476a06759a0a46dcebd1
  
              // Spigot start - spam exclusions
 diff --git a/src/main/java/net/minecraft/server/PlayerList.java b/src/main/java/net/minecraft/server/PlayerList.java
-index 7db99b6639a0afdd1f68539f6c6a6f48275e5b6b..1d1fb8eb9596504534ba335c471b8687501316b0 100644
+index 7b68d74f5b0917cce463c4f1c4e628ac5617da23..a0d7a9ebca80dd4abc6cc423f425d9f1b81f8535 100644
 --- a/src/main/java/net/minecraft/server/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/PlayerList.java
-@@ -1010,13 +1010,13 @@ public abstract class PlayerList {
+@@ -1013,13 +1013,13 @@ public abstract class PlayerList {
          ScoreboardTeamBase scoreboardteambase = entityhuman.getScoreboardTeam();
  
          if (scoreboardteambase == null) {

@@ -29,7 +29,7 @@ index 255bbd6e48b95c70fad02ba692c64c7579496827..428662f5273bc8a9ea56ef5932859a0a
  
          return history != null ? history + "\n" + updateMessage : updateMessage;
 diff --git a/src/main/java/net/pl3x/purpur/PurpurConfig.java b/src/main/java/net/pl3x/purpur/PurpurConfig.java
-index 645213cacb6061f84da7a1c9d6f2fa94670346ff..834b0c3468b7c0ece40e3a824a8ac1b0e2345fad 100644
+index 5d75481660d5e11abe263f2a6343b87c75cca090..0b4180b9f1e3e1be29f564b4afd42d37bbdfd403 100644
 --- a/src/main/java/net/pl3x/purpur/PurpurConfig.java
 +++ b/src/main/java/net/pl3x/purpur/PurpurConfig.java
 @@ -182,9 +182,9 @@ public class PurpurConfig {
@@ -45,7 +45,7 @@ index 645213cacb6061f84da7a1c9d6f2fa94670346ff..834b0c3468b7c0ece40e3a824a8ac1b0
  
      public static String timingsUrl = "https://timings.pl3x.net";
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index dfe6777db04bb550ae0e761addd26b2d5abf3baf..34c833401a57c0348e6ebcb9583b8aca03af7130 100644
+index 1f17349c00522cd4768836d78e712cd6c184fd11..e6ca53c1750fa2602c6d3eea31ea0748a30a77ed 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -231,7 +231,7 @@ import javax.annotation.Nullable; // Paper

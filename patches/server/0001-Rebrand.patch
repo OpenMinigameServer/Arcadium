@@ -45,10 +45,10 @@ index 5d75481660d5e11abe263f2a6343b87c75cca090..0b4180b9f1e3e1be29f564b4afd42d37
  
      public static String timingsUrl = "https://timings.pl3x.net";
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 1f17349c00522cd4768836d78e712cd6c184fd11..e6ca53c1750fa2602c6d3eea31ea0748a30a77ed 100644
+index 286e2964f672b75f18c48541ec1760eb9278bb1e..504a3aea5041368a16f5971d7b2d31758420f2b6 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -231,7 +231,7 @@ import javax.annotation.Nullable; // Paper
+@@ -232,7 +232,7 @@ import javax.annotation.Nullable; // Paper
  import javax.annotation.Nonnull; // Paper
  
  public final class CraftServer implements Server {

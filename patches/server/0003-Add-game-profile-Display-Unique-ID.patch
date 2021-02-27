@@ -122,7 +122,7 @@ index 1369f0e680bd581a7fb93fb37ef5ab3d6aee5c98..215fc1cec4c4eb5d3854d4004ee7395f
 +    }
  }
 diff --git a/src/main/java/net/minecraft/server/EntityPlayer.java b/src/main/java/net/minecraft/server/EntityPlayer.java
-index d9206191e653df877e327b6538eaa321c48be789..19aeb737699758da8d322b5b6ced23c8dac44bd3 100644
+index 67f822e64013540dd890e0269c8f770f7c029405..ddb1fe6deb8302d48028da8eff73e71fded03a5e 100644
 --- a/src/main/java/net/minecraft/server/EntityPlayer.java
 +++ b/src/main/java/net/minecraft/server/EntityPlayer.java
 @@ -1893,6 +1893,7 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
@@ -255,7 +255,7 @@ index 7137759447e65c96abfe3b5ef181b8ce33294df4..c734162576283694ae0d68e77ddfa9d9
  
              // Spigot start - spam exclusions
 diff --git a/src/main/java/net/minecraft/server/PlayerList.java b/src/main/java/net/minecraft/server/PlayerList.java
-index 7b68d74f5b0917cce463c4f1c4e628ac5617da23..a0d7a9ebca80dd4abc6cc423f425d9f1b81f8535 100644
+index 8b70ff57ab54a4ff1544b7a7fee5cc6ad6f20d35..6b2903b1a814ef14cfa8abdc8b612f6f6da8ab64 100644
 --- a/src/main/java/net/minecraft/server/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/PlayerList.java
 @@ -1013,13 +1013,13 @@ public abstract class PlayerList {

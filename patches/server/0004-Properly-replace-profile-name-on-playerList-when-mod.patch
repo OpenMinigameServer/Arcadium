@@ -97,14 +97,15 @@ index 504a3aea5041368a16f5971d7b2d31758420f2b6..92ae1d80f86698bd7eefaa499926cc0f
      private YamlConfiguration configuration;
      private YamlConfiguration commandsConfiguration;
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index 64136bf20a04e46f922a82a184a91bfb7b1db95d..9eb4dfff4d85c0c9f2ee84fac03106469c226428 100644
+index 64136bf20a04e46f922a82a184a91bfb7b1db95d..0aaa9a86ec9fc569379afae6c77dc62b12c8e13d 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -1428,6 +1428,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+@@ -1428,6 +1428,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
      public void setPlayerProfile(com.destroystokyo.paper.profile.PlayerProfile profile) {
          EntityPlayer self = getHandle();
          self.setProfile(com.destroystokyo.paper.profile.CraftPlayerProfile.asAuthlibCopy(profile));
-+        server.getPlayerList().replaceNameEntry(self.getProfile().getName(), profile.getName());
++        GameProfile oldProfile = self.getProfile();
++        server.getPlayerList().replaceNameEntry(oldProfile.getName(), profile.getName());
          if (!self.sentListPacket) {
              return;
          }

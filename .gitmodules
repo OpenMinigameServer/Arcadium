@@ -1,0 +1,4 @@
+[submodule "Purpur"]
+	path = Purpur
+	url = https://github.com/pl3xgaming/Purpur/
+	branch = ver/1.16.5

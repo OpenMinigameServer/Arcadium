@@ -1,0 +1,232 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: NickAc <32451103+NickAcPT@users.noreply.github.com>
+Date: Fri, 26 Mar 2021 20:40:12 +0000
+Subject: [PATCH] Port SWM patches
+
+
+diff --git a/src/main/java/com/grinderwolf/swm/clsm/CLSMBridge.java b/src/main/java/com/grinderwolf/swm/clsm/CLSMBridge.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..c84c79e0088abd73595f2d5cf8b1644927a1afb5
+--- /dev/null
++++ b/src/main/java/com/grinderwolf/swm/clsm/CLSMBridge.java
+@@ -0,0 +1,29 @@
++package com.grinderwolf.swm.clsm;
++
++public interface CLSMBridge {
++
++    default Object getChunk(Object world, int x, int z) {
++        return null;
++    }
++
++    default boolean saveChunk(Object world, Object chunkAccess) {
++        return false;
++    }
++
++    // Array containing the normal world, the nether and the end
++    Object[] getDefaultWorlds();
++
++    boolean isCustomWorld(Object world);
++
++    default boolean skipWorldAdd(Object world) {
++        return false; // If true, the world won't be added to the bukkit world list
++    }
++
++    // When creating a world in 1.16, the WorldServer constructor sets the world's gamemode
++    // to the value that the server has as the default gamemode. However, when overriding
++    // the default world, this value is not yet accessible (savedata in Minecraftserver is
++    // null at this stage), so this method acts as a patch to avoid that NPE in the constructor
++    default Object getDefaultGamemode() {
++        return null;
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/java/com/grinderwolf/swm/clsm/ClassModifier.java b/src/main/java/com/grinderwolf/swm/clsm/ClassModifier.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..e1d4fc66bf0ac3183fdc27ff6d12e5b0a7fd550f
+--- /dev/null
++++ b/src/main/java/com/grinderwolf/swm/clsm/ClassModifier.java
+@@ -0,0 +1,59 @@
++package com.grinderwolf.swm.clsm;
++
++import com.mojang.datafixers.util.Either;
++import org.bukkit.Bukkit;
++
++import java.util.concurrent.CompletableFuture;
++import java.util.function.BooleanSupplier;
++
++/**
++ * This class serves as a bridge between the SWM and the Minecraft server.
++ *
++ * As plugins are loaded using a different ClassLoader, their code cannot
++ * be accessed from a NMS method. Because of this, it's impossible to make
++ * any calls to any method when rewriting the bytecode of a NMS class.
++ *
++ * As a workaround, this bridge simply calls a method of the {@link CLSMBridge} interface,
++ * which is implemented by the SWM plugin when loaded.
++ */
++public class ClassModifier {
++
++    // Required for Paper 1.13 as javassist can't compile this class
++    public static final BooleanSupplier BOOLEAN_SUPPLIER = () -> true;
++
++    private static CLSMBridge customLoader;
++
++    public static CompletableFuture getFutureChunk(Object world, int x, int z) {
++        if (customLoader == null || !isCustomWorld(world)) {
++            return null;
++        }
++
++        return CompletableFuture.supplyAsync(() ->
++            Either.left(customLoader.getChunk(world, x, z))
++        );
++    }
++
++    public static boolean saveChunk(Object world, Object chunkAccess) {
++        return customLoader != null && customLoader.saveChunk(world, chunkAccess);
++    }
++
++    public static boolean isCustomWorld(Object world) {
++        return customLoader != null && customLoader.isCustomWorld(world);
++    }
++
++    public static boolean skipWorldAdd(Object world) {
++        return customLoader != null && customLoader.skipWorldAdd(world);
++    }
++
++    public static void setLoader(CLSMBridge loader) {
++        customLoader = loader;
++    }
++
++    public static Object[] getDefaultWorlds() {
++        return customLoader != null ? customLoader.getDefaultWorlds() : null;
++    }
++
++    public static Object getDefaultGamemode() {
++        return customLoader != null ? customLoader.getDefaultGamemode() : null;
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index e8146dad220330bdcc46e563172b40a66931d17c..b84adccc943737c9647c50e9548ab41683731310 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -404,10 +404,12 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+     }
+ 
+     protected void loadWorld(String s) {
++        WorldServer[] defaultWorlds = (WorldServer[]) com.grinderwolf.swm.clsm.ClassModifier.getDefaultWorlds(); // Arcadium - Fetch world from SWM
+         int worldCount = 3;
+ 
+         for (int worldId = 0; worldId < worldCount; ++worldId) {
+-            WorldServer world;
++            WorldServer world = null; // Arcadium - Fetch world from SWM
++            if (defaultWorlds != null) world = defaultWorlds[worldId]; // Arcadium - Fetch world from SWM
+             WorldDataServer worlddata;
+             byte dimension = 0;
+             ResourceKey<WorldDimension> dimensionKey = WorldDimension.OVERWORLD;
+@@ -538,14 +540,14 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+ 
+                 WorldLoadListener worldloadlistener = this.worldLoadListenerFactory.create(11);
+ 
+-                world = new WorldServer(this, this.executorService, worldSession, iworlddataserver, worldKey, dimensionmanager, worldloadlistener, chunkgenerator, flag, j, list, true, org.bukkit.World.Environment.getEnvironment(dimension), gen);
++               if (world == null) world = new WorldServer(this, this.executorService, worldSession, iworlddataserver, worldKey, dimensionmanager, worldloadlistener, chunkgenerator, flag, j, list, true, org.bukkit.World.Environment.getEnvironment(dimension), gen); // Arcadium - Fetch world from SWM
+                 WorldPersistentData worldpersistentdata = world.getWorldPersistentData();
+                 this.initializeScoreboards(worldpersistentdata);
+                 this.server.scoreboardManager = new org.bukkit.craftbukkit.scoreboard.CraftScoreboardManager(this, world.getScoreboard());
+                 this.persistentCommandStorage = new PersistentCommandStorage(worldpersistentdata);
+             } else {
+                 WorldLoadListener worldloadlistener = this.worldLoadListenerFactory.create(11);
+-                world = new WorldServer(this, this.executorService, worldSession, iworlddataserver, worldKey, dimensionmanager, worldloadlistener, chunkgenerator, flag, j, ImmutableList.of(), true, org.bukkit.World.Environment.getEnvironment(dimension), gen);
++               if (world == null) world = new WorldServer(this, this.executorService, worldSession, iworlddataserver, worldKey, dimensionmanager, worldloadlistener, chunkgenerator, flag, j, ImmutableList.of(), true, org.bukkit.World.Environment.getEnvironment(dimension), gen); // Arcadium - Fetch world from SWM
+             }
+ 
+             worlddata.a(this.getServerModName(), this.getModded().isPresent());
+@@ -802,6 +804,10 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+     }
+ 
+     public EnumGamemode getGamemode() {
++        // Arcadium start
++        EnumGamemode gamemode = (EnumGamemode) com.grinderwolf.swm.clsm.ClassModifier.getDefaultGamemode();
++        if (gamemode != null) return gamemode;
++        // Arcadium end
+         return this.saveData.getGameType();
+     }
+ 
+diff --git a/src/main/java/net/minecraft/server/level/PlayerChunkMap.java b/src/main/java/net/minecraft/server/level/PlayerChunkMap.java
+index 4f11a19137531a0406a5214cd0cce0bea06d0088..797931807156836a6d0079077dae8671f33710aa 100644
+--- a/src/main/java/net/minecraft/server/level/PlayerChunkMap.java
++++ b/src/main/java/net/minecraft/server/level/PlayerChunkMap.java
+@@ -1290,6 +1290,12 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+     }
+ 
+     private CompletableFuture<Either<IChunkAccess, PlayerChunk.Failure>> f(ChunkCoordIntPair chunkcoordintpair) {
++        // Arcadium start
++        java.util.concurrent.CompletableFuture chunk = com.grinderwolf.swm.clsm.ClassModifier.getFutureChunk(world, chunkcoordintpair.x, chunkcoordintpair.z);
++        if (chunk != null) {
++            return chunk;
++        }
++        // Arcadium end
+         // Paper start - Async chunk io
+         final java.util.function.BiFunction<ChunkRegionLoader.InProgressChunkHolder, Throwable, Either<IChunkAccess, PlayerChunk.Failure>> syncLoadComplete = (chunkHolder, ioThrowable) -> {
+             try (Timing ignored = this.world.timings.chunkLoad.startTimingIfSync()) { // Paper
+@@ -1595,6 +1601,11 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+     }
+ 
+     public boolean saveChunk(IChunkAccess ichunkaccess) {
++        // Arcadium start
++        if (com.grinderwolf.swm.clsm.ClassModifier.saveChunk(world, ichunkaccess)) {
++            return false;
++        }
++        // Arcadium end
+         try (co.aikar.timings.Timing ignored = this.world.timings.chunkSave.startTiming()) { // Paper
+         this.m.a(ichunkaccess.getPos());
+         if (!ichunkaccess.isNeedsSaving()) {
+diff --git a/src/main/java/net/minecraft/world/entity/npc/MobSpawnerTrader.java b/src/main/java/net/minecraft/world/entity/npc/MobSpawnerTrader.java
+index 361771fc4fcf16b1b013c550734019535cef2924..4a34030686a014360c5a3b97b0d58645a1398977 100644
+--- a/src/main/java/net/minecraft/world/entity/npc/MobSpawnerTrader.java
++++ b/src/main/java/net/minecraft/world/entity/npc/MobSpawnerTrader.java
+@@ -53,6 +53,11 @@ public class MobSpawnerTrader implements MobSpawner {
+ 
+     @Override
+     public int a(WorldServer worldserver, boolean flag, boolean flag1) {
++        // Arcadium start
++        if (com.grinderwolf.swm.clsm.ClassModifier.isCustomWorld(b)) {
++            return 0;
++        }
++        // Arcadium end
+         // Paper start
+         if (this.getMinuteTimer() == Integer.MIN_VALUE) {
+             this.setMinuteTimer(worldserver.paperConfig.wanderingTraderSpawnMinuteTicks);
+diff --git a/src/main/java/net/minecraft/world/level/saveddata/PersistentBase.java b/src/main/java/net/minecraft/world/level/saveddata/PersistentBase.java
+index f02840e04fa1644901292b3ec67720cb64c2931d..97a0227b85592d3ad5d2b7ea59d50bd27089c0d7 100644
+--- a/src/main/java/net/minecraft/world/level/saveddata/PersistentBase.java
++++ b/src/main/java/net/minecraft/world/level/saveddata/PersistentBase.java
+@@ -39,6 +39,12 @@ public abstract class PersistentBase {
+     }
+ 
+     public void a(File file) {
++        // Arcadium start
++        if (!file.getParentFile().exists()) {
++            a(false);
++            return;
++        }
++        // Arcadium end
+         if (this.c()) {
+             NBTTagCompound nbttagcompound = new NBTTagCompound();
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 10fda34ce47803db2af5c3175774931b80e25c07..a4c90fe8b739172bb184b75aa0538ccb1d101fd5 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1265,6 +1265,11 @@ public final class CraftServer implements Server {
+     // Paper end
+ 
+     public void addWorld(World world) {
++        // Arcadium start
++        if (com.grinderwolf.swm.clsm.ClassModifier.skipWorldAdd(((org.bukkit.craftbukkit.CraftWorld) world).getHandle())) {
++            return;
++        }
++        // Arcadium end
+         // Check if a World already exists with the UID.
+         if (getWorld(world.getUID()) != null) {
+             System.out.println("World " + world.getName() + " is a duplicate of another world and has been prevented from loading. Please delete the uid.dat file from " + world.getName() + "'s world directory if you want to be able to load the duplicate world.");

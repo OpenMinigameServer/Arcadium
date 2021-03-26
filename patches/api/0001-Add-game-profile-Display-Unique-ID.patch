@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: NickAc <32451103+NickAcPT@users.noreply.github.com>
+Date: Fri, 26 Mar 2021 17:36:11 +0000
+Subject: [PATCH] Add game profile Display Unique ID
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/profile/PlayerProfile.java b/src/main/java/com/destroystokyo/paper/profile/PlayerProfile.java
+index 2ef9a7bd55e2c9cf8cb20d5f77282676ae11181f..9e1b087f9ae1569be0447738b3920485ce04dc42 100644
+--- a/src/main/java/com/destroystokyo/paper/profile/PlayerProfile.java
++++ b/src/main/java/com/destroystokyo/paper/profile/PlayerProfile.java
+@@ -40,6 +40,20 @@ public interface PlayerProfile {
+     @Nullable
+     UUID setId(@Nullable UUID uuid);
+ 
++    /**
++     * @return The players unique display identifier, if set
++     */
++    @Nullable UUID getDisplayId();
++
++    /**
++     * Sets this profiles display UUID
++     *
++     * @param uuid The new UUID
++     * @return The previous UUID
++     */
++    @Nullable
++    UUID setDisplayId(@Nullable UUID uuid);
++
+     /**
+      * @return A Mutable set of this players properties, such as textures.
+      * Values specified here are subject to implementation details.

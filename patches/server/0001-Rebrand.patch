@@ -1,0 +1,92 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: NickAc <32451103+NickAcPT@users.noreply.github.com>
+Date: Fri, 26 Mar 2021 19:21:12 +0000
+Subject: [PATCH] Rebrand
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+index b9c5479e5561f8fe68ea8f94fbf4e64de8a53bf9..eb8ec46824795cafaee7998f681a586324b7a4b0 100644
+--- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
++++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+@@ -17,7 +17,7 @@ import java.net.URL;
+ 
+ public class PaperVersionFetcher implements VersionFetcher {
+     private static final java.util.regex.Pattern VER_PATTERN = java.util.regex.Pattern.compile("^([0-9\\.]*)\\-.*R"); // R is an anchor, will always give '-R' at end
+-    private static final String GITHUB_BRANCH_NAME = "master";
++    private static final String GITHUB_BRANCH_NAME = "main"; // Arcadium
+     private static @Nullable String mcVer;
+ 
+     @Override
+@@ -28,8 +28,8 @@ public class PaperVersionFetcher implements VersionFetcher {
+     @Nonnull
+     @Override
+     public Component getVersionMessage(@Nonnull String serverVersion) {
+-        String[] parts = serverVersion.substring("git-Airplane-".length()).split("[-\\s]"); // Tuinity
+-        final Component updateMessage = getUpdateStatusMessage("TECHNOVE/Airplane", GITHUB_BRANCH_NAME, parts[0]); // Tuinity
++        String[] parts = serverVersion.substring("git-Arcadium-".length()).split("[-\\s]"); // Tuinity // Arcadium
++        final Component updateMessage = getUpdateStatusMessage("OpenMinigameServer/Arcadium", GITHUB_BRANCH_NAME, parts[0]); // Tuinity // Arcadium
+         final Component history = getHistory();
+ 
+         return history != null ? TextComponent.ofChildren(updateMessage, Component.newline(), history) : updateMessage;
+diff --git a/src/main/java/net/pl3x/purpur/PurpurConfig.java b/src/main/java/net/pl3x/purpur/PurpurConfig.java
+index 6355f246809982f6da34671be22066a83cfba42c..8954ec936896dc3c4d21f923cd8f85935d991141 100644
+--- a/src/main/java/net/pl3x/purpur/PurpurConfig.java
++++ b/src/main/java/net/pl3x/purpur/PurpurConfig.java
+@@ -183,9 +183,9 @@ public class PurpurConfig {
+         if (!TimingsManager.hiddenConfigs.contains("settings.seed.end-spike")) TimingsManager.hiddenConfigs.add("settings.seed.end-spike");
+     }
+ 
+-    public static String serverModName = "Purpur";
++    public static String serverModName = "Arcadium"; // Arcadium
+     private static void serverModName() {
+-        serverModName = getString("settings.server-mod-name", serverModName);
++        //serverModName = getString("settings.server-mod-name", serverModName); // Arcadium
+     }
+ 
+     public static String timingsUrl = "https://timings.pl3x.net";
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index d57292e524cad6306c99c1cf6c5790fe1d07d815..0b9539473750cf5ea9302daebfa990316b26e365 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -232,7 +232,7 @@ import javax.annotation.Nullable; // Paper
+ import javax.annotation.Nonnull; // Paper
+ 
+ public final class CraftServer implements Server {
+-    private final String serverName = "Purpur"; // Paper // Tuinity // Airplane // Purpur
++    private final String serverName = "Arcadium"; // Paper // Tuinity // Airplane // Purpur // Arcadium
+     private final String serverVersion;
+     private final String bukkitVersion = Versioning.getBukkitVersion();
+     private final Logger logger = Logger.getLogger("Minecraft");
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
+index 609eda567751b2f1cf74e9f090ca5cb0c1d771cc..fe58bd2669fbb02c500d3c32c007d6758c7c9b4e 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
+@@ -1,5 +1,6 @@
+ package org.bukkit.craftbukkit.util;
+ 
++import com.destroystokyo.paper.PaperVersionFetcher;
+ import com.google.common.base.Charsets;
+ import com.google.common.base.Preconditions;
+ import com.google.common.collect.Maps;
+@@ -377,7 +378,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
+ 
+     @Override
+     public com.destroystokyo.paper.util.VersionFetcher getVersionFetcher() {
+-        return new net.pl3x.purpur.PurpurVersionFetcher();
++        return new PaperVersionFetcher(); // Arcadium
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
+index 191f5331f0c7871f80f0da9cc38345ce33353577..2b71412f07e8fae6bc4b0824c15848cd2c3e77b8 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
+@@ -11,7 +11,7 @@ public final class Versioning {
+     public static String getBukkitVersion() {
+         String result = "Unknown-Version";
+ 
+-        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/net.pl3x.purpur/purpur-api/pom.properties"); // Tuinity // Airplane // Purpur
++        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/io.github.openminigameserver.arcadium/arcadium-api/pom.properties"); // Tuinity // Airplane // Purpur // Arcadium
+         Properties properties = new Properties();
+ 
+         if (stream != null) {

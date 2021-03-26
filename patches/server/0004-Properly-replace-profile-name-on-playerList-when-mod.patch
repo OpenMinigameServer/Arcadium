@@ -1,0 +1,78 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: NickAc <32451103+NickAcPT@users.noreply.github.com>
+Date: Fri, 26 Mar 2021 19:16:31 +0000
+Subject: [PATCH] Properly replace profile name on playerList when modifying
+ profile names
+
+
+diff --git a/src/main/java/net/minecraft/server/network/PlayerConnection.java b/src/main/java/net/minecraft/server/network/PlayerConnection.java
+index 4e0407d78290d97c47b280cc63d1cb1c6f6f65cf..c37c9cd93ad8021bc7019d2a43690b66d63cc7b5 100644
+--- a/src/main/java/net/minecraft/server/network/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/network/PlayerConnection.java
+@@ -99,6 +99,7 @@ import net.minecraft.network.protocol.game.PacketPlayOutHeldItemSlot;
+ import net.minecraft.network.protocol.game.PacketPlayOutKeepAlive;
+ import net.minecraft.network.protocol.game.PacketPlayOutKickDisconnect;
+ import net.minecraft.network.protocol.game.PacketPlayOutNBTQuery;
++import net.minecraft.network.protocol.game.PacketPlayOutPlayerInfo;
+ import net.minecraft.network.protocol.game.PacketPlayOutPosition;
+ import net.minecraft.network.protocol.game.PacketPlayOutSetSlot;
+ import net.minecraft.network.protocol.game.PacketPlayOutTabComplete;
+diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
+index 0d7e16d28cc7331b80ce3f2a9750fb05124acc98..670fbdb7464f414d6f4a41db4af4d6cbc75cff54 100644
+--- a/src/main/java/net/minecraft/server/players/PlayerList.java
++++ b/src/main/java/net/minecraft/server/players/PlayerList.java
+@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
+ import java.util.Collection;
+ import java.util.Iterator;
+ import java.util.List;
++import java.util.Locale;
+ import java.util.Map;
+ import java.util.Optional;
+ import java.util.Set;
+@@ -155,6 +156,19 @@ public abstract class PlayerList {
+     // CraftBukkit start
+     private CraftServer cserver;
+     private final Map<String,EntityPlayer> playersByName = new java.util.HashMap<>();
++    // Arcadium start
++    public void replaceNameEntry(@Nullable String oldName, @Nullable String newName) {
++        if (oldName == null || newName == null) {
++            return;
++        }
++        oldName = oldName.toLowerCase(Locale.ROOT);
++        newName = newName.toLowerCase(Locale.ROOT);
++
++        EntityPlayer oldEntry = playersByName.get(oldName);
++        playersByName.remove(oldName);
++        playersByName.put(newName, oldEntry);
++    }
++    // Arcadium end
+     public @Nullable String collideRuleTeamName; // Paper - Team name used for collideRule
+ 
+     public PlayerList(MinecraftServer minecraftserver, IRegistryCustom.Dimension iregistrycustom_dimension, WorldNBTStorage worldnbtstorage, int i) {
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 0b9539473750cf5ea9302daebfa990316b26e365..10fda34ce47803db2af5c3175774931b80e25c07 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -243,7 +243,7 @@ public final class CraftServer implements Server {
+     private final StandardMessenger messenger = new StandardMessenger();
+     private final SimplePluginManager pluginManager = new SimplePluginManager(this, commandMap);
+     protected final DedicatedServer console;
+-    protected final DedicatedPlayerList playerList;
++    protected final DedicatedPlayerList playerList; public DedicatedPlayerList getPlayerList() { return playerList; } // Arcadium - OBFHELPER
+     private final Map<String, World> worlds = new LinkedHashMap<String, World>();
+     private YamlConfiguration configuration;
+     private YamlConfiguration commandsConfiguration;
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+index 37564214c6595dfc07534124f749bf65002325c2..6c9989d3e0438c96de6f7e80577d6a4cc070f51f 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+@@ -1407,7 +1407,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
+     }
+     public void setPlayerProfile(com.destroystokyo.paper.profile.PlayerProfile profile) {
+         EntityPlayer self = getHandle();
++        GameProfile oldProfile = self.getProfile();
+         self.setProfile(com.destroystokyo.paper.profile.CraftPlayerProfile.asAuthlibCopy(profile));
++        server.getPlayerList().replaceNameEntry(oldProfile.getName(), profile.getName());
+         if (!self.sentListPacket) {
+             return;
+         }

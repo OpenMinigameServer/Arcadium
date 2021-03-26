@@ -1,0 +1,276 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: NickAc <32451103+NickAcPT@users.noreply.github.com>
+Date: Fri, 26 Mar 2021 17:38:27 +0000
+Subject: [PATCH] Add game profile Display Unique ID
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java b/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java
+index 040fd0c3fc4bc3a04fe5dff919a41fe9b474708e..9c0fdc67dcbdf691311dc357204a61bf4d716ebc 100644
+--- a/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java
++++ b/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java
+@@ -33,6 +33,10 @@ public class CraftPlayerProfile implements PlayerProfile {
+         this.profile = new GameProfile(id, name);
+     }
+ 
++    public CraftPlayerProfile(UUID id, UUID displayId, String name) {
++        this.profile = new GameProfile(id, displayId, name);
++    }
++
+     public CraftPlayerProfile(GameProfile profile) {
+         Validate.notNull(profile, "GameProfile cannot be null!");
+         this.profile = profile;
+@@ -69,6 +73,19 @@ public class CraftPlayerProfile implements PlayerProfile {
+         return prev.getId();
+     }
+ 
++    @Override
++    public UUID getDisplayId() {
++        return profile.getDisplayId();
++    }
++
++    @Override
++    public UUID setDisplayId(UUID displayUuid) {
++        GameProfile prev = this.profile;
++        this.profile = new GameProfile(prev.getId(), displayUuid, prev.getName());
++        copyProfileProperties(prev, this.profile);
++        return prev.getId();
++    }
++
+     @Nullable
+     @Override
+     public String getName() {
+@@ -124,7 +141,7 @@ public class CraftPlayerProfile implements PlayerProfile {
+ 
+     @Override
+     public CraftPlayerProfile clone() {
+-        CraftPlayerProfile clone = new CraftPlayerProfile(this.getId(), this.getName());
++        CraftPlayerProfile clone = new CraftPlayerProfile(this.getId(), this.getDisplayId(), this.getName());
+         clone.setProperties(getProperties());
+         return clone;
+     }
+diff --git a/src/main/java/com/mojang/authlib/GameProfile.java b/src/main/java/com/mojang/authlib/GameProfile.java
+index 1369f0e680bd581a7fb93fb37ef5ab3d6aee5c98..215fc1cec4c4eb5d3854d4004ee7395f1d0cc0c5 100644
+--- a/src/main/java/com/mojang/authlib/GameProfile.java
++++ b/src/main/java/com/mojang/authlib/GameProfile.java
+@@ -7,9 +7,10 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
+ import java.util.UUID;
+ 
+ public class GameProfile {
++    private UUID displayId; // Arcadium
+     private final UUID id;
+     private final String name;
+-    private final PropertyMap properties = new PropertyMap();
++    private PropertyMap properties = new PropertyMap(); // Arcadium - final -> not final
+     private boolean legacy;
+ 
+     /**
+@@ -29,6 +30,20 @@ public class GameProfile {
+         this.id = id;
+         this.name = name;
+     }
++    /**
++     * Constructs a new Game Profile with the specified ID and name.
++     * <p />
++     * Either ID or name may be null/empty, but at least one must be filled.
++     *
++     * @param id Unique ID of the profile
++     * @param displayId Display Unique ID of the profile
++     * @param name Display name of the profile
++     * @throws java.lang.IllegalArgumentException Both ID and name are either null or empty
++     */
++    public GameProfile(final UUID id, final UUID displayId, final String name) {
++        this(id, name);
++        this.displayId = displayId;
++    }
+ 
+     /**
+      * Gets the unique ID of this game profile.
+@@ -41,6 +56,17 @@ public class GameProfile {
+         return id;
+     }
+ 
++    /**
++     * Gets the unique Display ID of this game profile.
++     * <p />
++     * This may be null for partial profile data if constructed manually.
++     *
++     * @return Display ID of the profile
++     */
++    public UUID getDisplayId() {
++        return displayId;
++    }
++
+     /**
+      * Gets the display name of this game profile.
+      * <p />
+@@ -113,4 +139,17 @@ public class GameProfile {
+     public boolean isLegacy() {
+         return legacy;
+     }
++
++    /**
++     * Gets a copy of this profile if it includes a Display ID, or itself if it doesn't.
++     * @return A GameProfile with a different Unique ID if needed
++     */
++    public GameProfile getDisplayProfile() {
++        if (displayId != null) {
++            GameProfile copyProfile = new GameProfile(displayId, name);
++            copyProfile.properties = this.properties;
++            return copyProfile;
++        }
++        return this;
++    }
+ }
+diff --git a/src/main/java/net/minecraft/network/protocol/game/PacketPlayOutNamedEntitySpawn.java b/src/main/java/net/minecraft/network/protocol/game/PacketPlayOutNamedEntitySpawn.java
+index fc897db288d04db61968a4aec12f3c8dbb6552bf..cdae078d1da6b3226089595e917d38f71f615803 100644
+--- a/src/main/java/net/minecraft/network/protocol/game/PacketPlayOutNamedEntitySpawn.java
++++ b/src/main/java/net/minecraft/network/protocol/game/PacketPlayOutNamedEntitySpawn.java
+@@ -20,7 +20,7 @@ public class PacketPlayOutNamedEntitySpawn implements Packet<PacketListenerPlayO
+ 
+     public PacketPlayOutNamedEntitySpawn(EntityHuman entityhuman) {
+         this.a = entityhuman.getId();
+-        this.b = entityhuman.getProfile().getId();
++        this.b = entityhuman.getProfile().getDisplayProfile().getId();
+         this.c = entityhuman.locX();
+         this.d = entityhuman.locY();
+         this.e = entityhuman.locZ();
+diff --git a/src/main/java/net/minecraft/network/protocol/game/PacketPlayOutPlayerInfo.java b/src/main/java/net/minecraft/network/protocol/game/PacketPlayOutPlayerInfo.java
+index 2758cf87fe5cb89c101f2495783c72a2fe4ad632..c1304e1ca3d122b416812fb5cff256a16bd470e5 100644
+--- a/src/main/java/net/minecraft/network/protocol/game/PacketPlayOutPlayerInfo.java
++++ b/src/main/java/net/minecraft/network/protocol/game/PacketPlayOutPlayerInfo.java
+@@ -16,8 +16,8 @@ import net.minecraft.world.level.EnumGamemode;
+ 
+ public class PacketPlayOutPlayerInfo implements Packet<PacketListenerPlayOut> {
+ 
+-    private PacketPlayOutPlayerInfo.EnumPlayerInfoAction a;
+-    private final List<PacketPlayOutPlayerInfo.PlayerInfoData> b = Lists.newArrayList();
++    private PacketPlayOutPlayerInfo.EnumPlayerInfoAction a; public PacketPlayOutPlayerInfo.EnumPlayerInfoAction getAction() { return a; } // Arcadium - OBFHelper
++    private final List<PacketPlayOutPlayerInfo.PlayerInfoData> b = Lists.newArrayList(); public List<PlayerInfoData> getPlayerInfoDataList() { return b; }// Arcadium - OBFHELPER
+ 
+     public PacketPlayOutPlayerInfo() {}
+ 
+@@ -30,6 +30,15 @@ public class PacketPlayOutPlayerInfo implements Packet<PacketListenerPlayOut> {
+             EntityPlayer entityplayer = aentityplayer1[j];
+ 
+             this.b.add(new PacketPlayOutPlayerInfo.PlayerInfoData(entityplayer.getProfile(), entityplayer.ping, entityplayer.playerInteractManager.getGameMode(), entityplayer.getPlayerListName()));
++
++            if (a == EnumPlayerInfoAction.REMOVE_PLAYER && entityplayer.getProfile().getDisplayId() != null) {
++                //If there is a display id, remove the original uuid from the list of players
++                PlayerInfoData playerData = new PlayerInfoData(entityplayer.getProfile(), entityplayer.ping,
++                        entityplayer.playerInteractManager.getGameMode(), entityplayer.getPlayerListName());
++                playerData.setForceRealProfile(true);
++                this.b.add(playerData);
++
++            }
+         }
+ 
+     }
+@@ -176,9 +185,21 @@ public class PacketPlayOutPlayerInfo implements Packet<PacketListenerPlayOut> {
+ 
+         private final int b;
+         private final EnumGamemode c;
+-        private final GameProfile d;
++        private GameProfile d; // Arcadium - final -> not final
+         private final IChatBaseComponent e;
+ 
++        // Arcadium start
++        private boolean forceRealProfile = false;
++
++        public boolean isForceRealProfile() {
++            return forceRealProfile;
++        }
++
++        public void setForceRealProfile(boolean forceRealProfile) {
++            this.forceRealProfile = forceRealProfile;
++        }
++        // Arcadium end
++
+         public PlayerInfoData(GameProfile gameprofile, int i, EnumGamemode enumgamemode, @Nullable IChatBaseComponent ichatbasecomponent) {
+             this.d = gameprofile;
+             this.b = i;
+@@ -187,9 +208,18 @@ public class PacketPlayOutPlayerInfo implements Packet<PacketListenerPlayOut> {
+         }
+ 
+         public GameProfile a() {
++            // Arcadium start - OBFHELPER
++            return forceRealProfile ? getGameProfile() : getGameProfile().getDisplayProfile(); // Arcadium - Display profile and force real profile
++        }
++        public GameProfile getGameProfile() {
++            // Arcadium end
+             return this.d;
+         }
+ 
++        public void setGameProfile(GameProfile profile) {
++            this.d = profile;
++        }
++
+         public int b() {
+             return this.b;
+         }
+diff --git a/src/main/java/net/minecraft/server/level/EntityPlayer.java b/src/main/java/net/minecraft/server/level/EntityPlayer.java
+index b4dbc59faff3fd6ceb74d829762eb68e649975c5..326aa11d028a6717216515b6291f34abe4e5ebff 100644
+--- a/src/main/java/net/minecraft/server/level/EntityPlayer.java
++++ b/src/main/java/net/minecraft/server/level/EntityPlayer.java
+@@ -2036,6 +2036,7 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
+ 
+     @Override
+     public void sendMessage(IChatBaseComponent ichatbasecomponent, UUID uuid) {
++        if (uuid.equals(uniqueID)) uuid = getProfile().getDisplayProfile().getId(); // Arcadium - Use Display profile
+         this.a(ichatbasecomponent, ChatMessageType.SYSTEM, uuid);
+     }
+ 
+diff --git a/src/main/java/net/minecraft/server/network/PlayerConnection.java b/src/main/java/net/minecraft/server/network/PlayerConnection.java
+index bdcc8ced52a858d2dd0bbfaab5a21197327d4dda..4e0407d78290d97c47b280cc63d1cb1c6f6f65cf 100644
+--- a/src/main/java/net/minecraft/server/network/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/network/PlayerConnection.java
+@@ -1992,6 +1992,21 @@ public class PlayerConnection implements PacketListenerPlayIn {
+             }
+         }
+ 
++        // Arcadium start
++        if (packet instanceof PacketPlayOutPlayerInfo) {
++            PacketPlayOutPlayerInfo playerInfo = (PacketPlayOutPlayerInfo) packet;
++            List<PacketPlayOutPlayerInfo.PlayerInfoData> dataList = playerInfo.getPlayerInfoDataList();
++            if (dataList != null) {
++                dataList.forEach(info -> {
++                    // Do not change profile for self
++                    if (info.getGameProfile().getDisplayId() != null && player.getUniqueID() == info.getGameProfile().getId()) {
++                        info.setForceRealProfile(true);
++                    }
++                });
++            }
++        }
++        // Arcadium end
++
+         // CraftBukkit start
+         if (packet == null || this.processedDisconnect) { // Spigot
+             return;
+@@ -2120,7 +2135,7 @@ public class PlayerConnection implements PacketListenerPlayIn {
+             } else {
+                 ChatMessage chatmessage = new ChatMessage("chat.type.text", new Object[]{this.player.getScoreboardDisplayName(), s});
+ 
+-                this.minecraftServer.getPlayerList().sendMessage(chatmessage, ChatMessageType.CHAT, this.player.getUniqueID());
++                this.minecraftServer.getPlayerList().sendMessage(chatmessage, ChatMessageType.CHAT, this.player.getProfile().getDisplayProfile().getDisplayId()); // Arcadium - Use Display profile
+             }
+ 
+             // Spigot start - spam exclusions
+diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
+index 3b70d3e3cf7cb17c075f8b758ba7967f99325223..0d7e16d28cc7331b80ce3f2a9750fb05124acc98 100644
+--- a/src/main/java/net/minecraft/server/players/PlayerList.java
++++ b/src/main/java/net/minecraft/server/players/PlayerList.java
+@@ -1093,13 +1093,13 @@ public abstract class PlayerList {
+         ScoreboardTeamBase scoreboardteambase = entityhuman.getScoreboardTeam();
+ 
+         if (scoreboardteambase == null) {
+-            this.sendMessage(ichatbasecomponent, ChatMessageType.SYSTEM, entityhuman.getUniqueID());
++            this.sendMessage(ichatbasecomponent, ChatMessageType.SYSTEM, entityhuman.getProfile().getDisplayProfile().getId()); // Arcadium - Use Display profile
+         } else {
+             for (int i = 0; i < this.players.size(); ++i) {
+                 EntityPlayer entityplayer = (EntityPlayer) this.players.get(i);
+ 
+                 if (entityplayer.getScoreboardTeam() != scoreboardteambase) {
+-                    entityplayer.sendMessage(ichatbasecomponent, entityhuman.getUniqueID());
++                    entityplayer.sendMessage(ichatbasecomponent, entityhuman.getProfile().getDisplayProfile().getId());
+                 }
+             }
+ 

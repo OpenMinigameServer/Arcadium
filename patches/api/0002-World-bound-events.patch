@@ -207,10 +207,10 @@ index 26685f59b235ea5b4c4fb7ae21acb5149edaa2b3..925e169b49f2267e169e633ab13e283e
      private HandlerList getEventListeners(@NotNull Class<? extends Event> type) {
 diff --git a/src/main/java/org/bukkit/plugin/WorldBoundRegisteredListener.java b/src/main/java/org/bukkit/plugin/WorldBoundRegisteredListener.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..e0fadd3028169dbcb6e43d2d676b7c86347eb0f1
+index 0000000000000000000000000000000000000000..2f2df7d3f7550509d26a18ffd673e39b17797670
 --- /dev/null
 +++ b/src/main/java/org/bukkit/plugin/WorldBoundRegisteredListener.java
-@@ -0,0 +1,31 @@
+@@ -0,0 +1,32 @@
 +package org.bukkit.plugin;
 +
 +import java.util.UUID;
@@ -225,11 +225,12 @@ index 0000000000000000000000000000000000000000..e0fadd3028169dbcb6e43d2d676b7c86
 +public class WorldBoundRegisteredListener extends RegisteredListener {
 +    private final UUID worldId;
 +
-+    public WorldBoundRegisteredListener(@NotNull Listener listener, @NotNull EventExecutor executor, @NotNull EventPriority priority, @NotNull Plugin plugin, boolean ignoreCancelled, World world) {
++    public WorldBoundRegisteredListener(@NotNull Listener listener, @NotNull EventExecutor executor, @NotNull EventPriority priority, @NotNull Plugin plugin, boolean ignoreCancelled, @NotNull World world) {
 +        super(listener, executor, priority, plugin, ignoreCancelled);
 +        worldId = world.getUID();
 +    }
 +
++    @NotNull
 +    public UUID getWorldId() {
 +        return worldId;
 +    }

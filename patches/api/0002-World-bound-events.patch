@@ -1,0 +1,244 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: NickAc <32451103+NickAcPT@users.noreply.github.com>
+Date: Thu, 1 Apr 2021 22:27:21 +0100
+Subject: [PATCH] World-bound events
+
+
+diff --git a/src/main/java/org/bukkit/event/WorldProvider.java b/src/main/java/org/bukkit/event/WorldProvider.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..05b302c2c43e56e14315a9e14c611e91ad9283cd
+--- /dev/null
++++ b/src/main/java/org/bukkit/event/WorldProvider.java
+@@ -0,0 +1,8 @@
++package org.bukkit.event;
++
++import org.bukkit.World;
++import org.jetbrains.annotations.NotNull;
++
++public interface WorldProvider {
++    @NotNull World getWorld();
++}
+diff --git a/src/main/java/org/bukkit/event/block/BlockEvent.java b/src/main/java/org/bukkit/event/block/BlockEvent.java
+index 62a4d13453e5430020933471efa938ceb689baaa..c5e0533bafebb3a0ba19bb99039d8a8f893e26e1 100644
+--- a/src/main/java/org/bukkit/event/block/BlockEvent.java
++++ b/src/main/java/org/bukkit/event/block/BlockEvent.java
+@@ -1,13 +1,15 @@
+ package org.bukkit.event.block;
+ 
++import org.bukkit.World;
+ import org.bukkit.block.Block;
+ import org.bukkit.event.Event;
++import org.bukkit.event.WorldProvider;
+ import org.jetbrains.annotations.NotNull;
+ 
+ /**
+  * Represents a block related event.
+  */
+-public abstract class BlockEvent extends Event {
++public abstract class BlockEvent extends Event implements WorldProvider { // Arcadium - World-bound events
+     protected Block block;
+ 
+     public BlockEvent(@NotNull final Block theBlock) {
+@@ -23,4 +25,12 @@ public abstract class BlockEvent extends Event {
+     public final Block getBlock() {
+         return block;
+     }
++
++    // Arcadium start - World-bound events
++    @NotNull
++    @Override
++    public World getWorld() {
++        return block.getWorld();
++    }
++    // Arcadium end - World-bound events
+ }
+diff --git a/src/main/java/org/bukkit/event/entity/EntityEvent.java b/src/main/java/org/bukkit/event/entity/EntityEvent.java
+index e3a9e32933fe84644f7458d2e0b8b09d3eacb21c..400ccaa62e4d2b6cd9a7c69e1625a8e8548ecdb5 100644
+--- a/src/main/java/org/bukkit/event/entity/EntityEvent.java
++++ b/src/main/java/org/bukkit/event/entity/EntityEvent.java
+@@ -1,14 +1,16 @@
+ package org.bukkit.event.entity;
+ 
++import org.bukkit.World;
+ import org.bukkit.entity.Entity;
+ import org.bukkit.entity.EntityType;
+ import org.bukkit.event.Event;
++import org.bukkit.event.WorldProvider;
+ import org.jetbrains.annotations.NotNull;
+ 
+ /**
+  * Represents an Entity-related event
+  */
+-public abstract class EntityEvent extends Event {
++public abstract class EntityEvent extends Event implements WorldProvider { // Arcadium - World-bound events
+     protected Entity entity;
+ 
+     public EntityEvent(@NotNull final Entity what) {
+@@ -34,4 +36,12 @@ public abstract class EntityEvent extends Event {
+     public EntityType getEntityType() {
+         return entity.getType();
+     }
++
++    // Arcadium start - World-bound events
++    @NotNull
++    @Override
++    public World getWorld() {
++        return entity.getWorld();
++    }
++    // Arcadium end - World-bound events
+ }
+diff --git a/src/main/java/org/bukkit/event/player/PlayerEvent.java b/src/main/java/org/bukkit/event/player/PlayerEvent.java
+index f6d3b817de3001f04ea4554c7c39a1290af3fd6d..d26fcea4b74e2776436d7204831976c57a9b863c 100644
+--- a/src/main/java/org/bukkit/event/player/PlayerEvent.java
++++ b/src/main/java/org/bukkit/event/player/PlayerEvent.java
+@@ -1,13 +1,15 @@
+ package org.bukkit.event.player;
+ 
++import org.bukkit.World;
+ import org.bukkit.entity.Player;
+ import org.bukkit.event.Event;
++import org.bukkit.event.WorldProvider;
+ import org.jetbrains.annotations.NotNull;
+ 
+ /**
+  * Represents a player related event
+  */
+-public abstract class PlayerEvent extends Event {
++public abstract class PlayerEvent extends Event implements WorldProvider { // Arcadium - World-bound events
+     protected Player player;
+ 
+     public PlayerEvent(@NotNull final Player who) {
+@@ -29,4 +31,12 @@ public abstract class PlayerEvent extends Event {
+     public final Player getPlayer() {
+         return player;
+     }
++
++    // Arcadium start - World-bound events
++    @NotNull
++    @Override
++    public World getWorld() {
++        return player.getWorld();
++    }
++    // Arcadium end - World-bound events
+ }
+diff --git a/src/main/java/org/bukkit/event/world/WorldEvent.java b/src/main/java/org/bukkit/event/world/WorldEvent.java
+index 1fa083d53dce161ef9e9f19407f230c94b2d7d15..4e199fddc4d8639012d19acf27fd4d2cb40015e3 100644
+--- a/src/main/java/org/bukkit/event/world/WorldEvent.java
++++ b/src/main/java/org/bukkit/event/world/WorldEvent.java
+@@ -2,12 +2,13 @@ package org.bukkit.event.world;
+ 
+ import org.bukkit.World;
+ import org.bukkit.event.Event;
++import org.bukkit.event.WorldProvider;
+ import org.jetbrains.annotations.NotNull;
+ 
+ /**
+  * Represents events within a world
+  */
+-public abstract class WorldEvent extends Event {
++public abstract class WorldEvent extends Event implements WorldProvider { // Arcadium - World-bound events
+     private final World world;
+ 
+     // Purpur start
+diff --git a/src/main/java/org/bukkit/plugin/PluginManager.java b/src/main/java/org/bukkit/plugin/PluginManager.java
+index 86cc5025ad98f7a752c51713b7cd6a39d5136ecc..90ca435394a9d568c97be4fe464a378041b1f16c 100644
+--- a/src/main/java/org/bukkit/plugin/PluginManager.java
++++ b/src/main/java/org/bukkit/plugin/PluginManager.java
+@@ -2,6 +2,7 @@ package org.bukkit.plugin;
+ 
+ import java.io.File;
+ import java.util.Set;
++import org.bukkit.World;
+ import org.bukkit.event.Event;
+ import org.bukkit.event.EventPriority;
+ import org.bukkit.event.Listener;
+@@ -142,6 +143,19 @@ public interface PluginManager {
+      */
+     public void registerEvent(@NotNull Class<? extends Event> event, @NotNull Listener listener, @NotNull EventPriority priority, @NotNull EventExecutor executor, @NotNull Plugin plugin, boolean ignoreCancelled);
+ 
++    /**
++     * Registers the specified world-bound executor to the given event class
++     *
++     * @param event Event type to register
++     * @param listener Listener to register
++     * @param priority Priority to register this event at
++     * @param executor EventExecutor to register
++     * @param plugin Plugin to register
++     * @param ignoreCancelled Whether to pass cancelled events or not
++     * @param world World to bind this listener to
++     */
++    public void registerEvent(@NotNull Class<? extends Event> event, @NotNull Listener listener, @NotNull EventPriority priority, @NotNull EventExecutor executor, @NotNull Plugin plugin, boolean ignoreCancelled, @Nullable World world);
++
+     /**
+      * Enables the specified plugin
+      * <p>
+diff --git a/src/main/java/org/bukkit/plugin/SimplePluginManager.java b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
+index 26685f59b235ea5b4c4fb7ae21acb5149edaa2b3..925e169b49f2267e169e633ab13e283eb4c843b2 100644
+--- a/src/main/java/org/bukkit/plugin/SimplePluginManager.java
++++ b/src/main/java/org/bukkit/plugin/SimplePluginManager.java
+@@ -661,6 +661,12 @@ public final class SimplePluginManager implements PluginManager {
+      */
+     @Override
+     public void registerEvent(@NotNull Class<? extends Event> event, @NotNull Listener listener, @NotNull EventPriority priority, @NotNull EventExecutor executor, @NotNull Plugin plugin, boolean ignoreCancelled) {
++    // Arcadium start - World-bound event listeners
++        registerEvent(event, listener, priority, executor, plugin, ignoreCancelled, null);
++    }
++
++    @Override
++    public void registerEvent(@NotNull Class<? extends Event> event, @NotNull Listener listener, @NotNull EventPriority priority, @NotNull EventExecutor executor, @NotNull Plugin plugin, boolean ignoreCancelled, @Nullable World world) {
+         Validate.notNull(listener, "Listener cannot be null");
+         Validate.notNull(priority, "Priority cannot be null");
+         Validate.notNull(executor, "Executor cannot be null");
+@@ -674,9 +680,14 @@ public final class SimplePluginManager implements PluginManager {
+         if (false) { // Spigot - RL handles useTimings check now // Paper
+             getEventListeners(event).register(new TimedRegisteredListener(listener, executor, priority, plugin, ignoreCancelled));
+         } else {
+-            getEventListeners(event).register(new RegisteredListener(listener, executor, priority, plugin, ignoreCancelled));
++            if (world != null) {
++                getEventListeners(event).register(new WorldBoundRegisteredListener(listener, executor, priority, plugin, ignoreCancelled, world));
++            } else {
++                getEventListeners(event).register(new RegisteredListener(listener, executor, priority, plugin, ignoreCancelled));
++            }
+         }
+     }
++    // Arcadium end - World-bound event listeners
+ 
+     @NotNull
+     private HandlerList getEventListeners(@NotNull Class<? extends Event> type) {
+diff --git a/src/main/java/org/bukkit/plugin/WorldBoundRegisteredListener.java b/src/main/java/org/bukkit/plugin/WorldBoundRegisteredListener.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..e0fadd3028169dbcb6e43d2d676b7c86347eb0f1
+--- /dev/null
++++ b/src/main/java/org/bukkit/plugin/WorldBoundRegisteredListener.java
+@@ -0,0 +1,31 @@
++package org.bukkit.plugin;
++
++import java.util.UUID;
++import org.bukkit.World;
++import org.bukkit.event.Event;
++import org.bukkit.event.EventException;
++import org.bukkit.event.EventPriority;
++import org.bukkit.event.Listener;
++import org.bukkit.event.WorldProvider;
++import org.jetbrains.annotations.NotNull;
++
++public class WorldBoundRegisteredListener extends RegisteredListener {
++    private final UUID worldId;
++
++    public WorldBoundRegisteredListener(@NotNull Listener listener, @NotNull EventExecutor executor, @NotNull EventPriority priority, @NotNull Plugin plugin, boolean ignoreCancelled, World world) {
++        super(listener, executor, priority, plugin, ignoreCancelled);
++        worldId = world.getUID();
++    }
++
++    public UUID getWorldId() {
++        return worldId;
++    }
++
++    @Override
++    public void callEvent(@NotNull Event event) throws EventException {
++        if (event instanceof WorldProvider && ((WorldProvider)event).getWorld().getUID() != getWorldId()) {
++            return;
++        }
++        super.callEvent(event);
++    }
++}

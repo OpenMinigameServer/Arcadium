@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: NickAc <32451103+NickAcPT@users.noreply.github.com>
+Date: Thu, 1 Apr 2021 22:03:32 +0100
+Subject: [PATCH] Disable some useless commands
+
+
+diff --git a/src/main/java/net/minecraft/commands/CommandDispatcher.java b/src/main/java/net/minecraft/commands/CommandDispatcher.java
+index b7663a3d64ae5202abb93eabba6ec013bae96334..fd6be759df19ef3c9321cde4230ac50deb035687 100644
+--- a/src/main/java/net/minecraft/commands/CommandDispatcher.java
++++ b/src/main/java/net/minecraft/commands/CommandDispatcher.java
+@@ -130,7 +130,7 @@ public class CommandDispatcher {
+         CommandGamemodeDefault.a(this.b);
+         CommandDifficulty.a(this.b);
+         CommandEffect.a(this.b);
+-        CommandMe.a(this.b);
++        //CommandMe.a(this.b); // Arcadium - Disable some commands
+         CommandEnchant.a(this.b);
+         CommandXp.a(this.b);
+         CommandFill.a(this.b);
+@@ -152,7 +152,7 @@ public class CommandDispatcher {
+         CommandReload.a(this.b);
+         CommandRecipe.a(this.b);
+         CommandReplaceItem.a(this.b);
+-        CommandSay.a(this.b);
++        //CommandSay.a(this.b); // Arcadium - Disable some commands
+         CommandSchedule.a(this.b);
+         CommandScoreboard.a(this.b);
+         CommandSeed.a(this.b, commanddispatcher_servertype != CommandDispatcher.ServerType.INTEGRATED);
+@@ -165,7 +165,7 @@ public class CommandDispatcher {
+         CommandSummon.a(this.b);
+         CommandTag.a(this.b);
+         CommandTeam.a(this.b);
+-        CommandTeamMsg.a(this.b);
++        //CommandTeamMsg.a(this.b); // Arcadium - Disable some commands
+         CommandTeleport.a(this.b);
+         CommandTellRaw.a(this.b);
+         CommandTime.a(this.b);
+@@ -190,7 +190,7 @@ public class CommandDispatcher {
+             CommandSaveOn.a(this.b);
+             CommandIdleTimeout.a(this.b);
+             CommandStop.a(this.b);
+-            CommandWhitelist.a(this.b);
++            //CommandWhitelist.a(this.b); // Arcadium - Disable some commands
+             net.pl3x.purpur.command.DemoCommand.register(getDispatcher()); // Purpur
+             net.pl3x.purpur.command.PingCommand.register(getDispatcher()); // Purpur
+             net.pl3x.purpur.command.TPSBarCommand.register(getDispatcher()); // Purpur

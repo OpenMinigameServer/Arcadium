@@ -220,7 +220,7 @@ index b4dbc59faff3fd6ceb74d829762eb68e649975c5..326aa11d028a6717216515b6291f34ab
      }
  
 diff --git a/src/main/java/net/minecraft/server/network/PlayerConnection.java b/src/main/java/net/minecraft/server/network/PlayerConnection.java
-index bdcc8ced52a858d2dd0bbfaab5a21197327d4dda..4e0407d78290d97c47b280cc63d1cb1c6f6f65cf 100644
+index 8359ccf316d292d81c56600887178cea6e33f270..2f5edccd8a706dfc1e43101346f199899f6f508c 100644
 --- a/src/main/java/net/minecraft/server/network/PlayerConnection.java
 +++ b/src/main/java/net/minecraft/server/network/PlayerConnection.java
 @@ -1992,6 +1992,21 @@ public class PlayerConnection implements PacketListenerPlayIn {
@@ -255,10 +255,10 @@ index bdcc8ced52a858d2dd0bbfaab5a21197327d4dda..4e0407d78290d97c47b280cc63d1cb1c
  
              // Spigot start - spam exclusions
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 3b70d3e3cf7cb17c075f8b758ba7967f99325223..0d7e16d28cc7331b80ce3f2a9750fb05124acc98 100644
+index 8b76e61228c8c766aaef9afe3fc81fc17a10d72c..415e8c95d5679a90ac1b4ee3219fecc7e6c6c5d0 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
-@@ -1093,13 +1093,13 @@ public abstract class PlayerList {
+@@ -1102,13 +1102,13 @@ public abstract class PlayerList {
          ScoreboardTeamBase scoreboardteambase = entityhuman.getScoreboardTeam();
  
          if (scoreboardteambase == null) {

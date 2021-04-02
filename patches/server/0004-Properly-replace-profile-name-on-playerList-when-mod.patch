@@ -6,7 +6,7 @@ Subject: [PATCH] Properly replace profile name on playerList when modifying
 
 
 diff --git a/src/main/java/net/minecraft/server/network/PlayerConnection.java b/src/main/java/net/minecraft/server/network/PlayerConnection.java
-index 4e0407d78290d97c47b280cc63d1cb1c6f6f65cf..c37c9cd93ad8021bc7019d2a43690b66d63cc7b5 100644
+index 2f5edccd8a706dfc1e43101346f199899f6f508c..b38cd815b2c260561f106248d39a62a4bc9d8489 100644
 --- a/src/main/java/net/minecraft/server/network/PlayerConnection.java
 +++ b/src/main/java/net/minecraft/server/network/PlayerConnection.java
 @@ -99,6 +99,7 @@ import net.minecraft.network.protocol.game.PacketPlayOutHeldItemSlot;
@@ -18,7 +18,7 @@ index 4e0407d78290d97c47b280cc63d1cb1c6f6f65cf..c37c9cd93ad8021bc7019d2a43690b66
  import net.minecraft.network.protocol.game.PacketPlayOutSetSlot;
  import net.minecraft.network.protocol.game.PacketPlayOutTabComplete;
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 0d7e16d28cc7331b80ce3f2a9750fb05124acc98..670fbdb7464f414d6f4a41db4af4d6cbc75cff54 100644
+index 415e8c95d5679a90ac1b4ee3219fecc7e6c6c5d0..f3b1628c8d69837588c86ed4017a627c4e74b240 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
 @@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
@@ -29,7 +29,7 @@ index 0d7e16d28cc7331b80ce3f2a9750fb05124acc98..670fbdb7464f414d6f4a41db4af4d6cb
  import java.util.Map;
  import java.util.Optional;
  import java.util.Set;
-@@ -155,6 +156,19 @@ public abstract class PlayerList {
+@@ -156,6 +157,19 @@ public abstract class PlayerList {
      // CraftBukkit start
      private CraftServer cserver;
      private final Map<String,EntityPlayer> playersByName = new java.util.HashMap<>();

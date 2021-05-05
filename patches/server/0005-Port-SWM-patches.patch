@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: NickAc <32451103+NickAcPT@users.noreply.github.com>
-Date: Fri, 26 Mar 2021 20:40:12 +0000
+From: NickAc <32451103+nickacpt@users.noreply.github.com>
+Date: Wed, 5 May 2021 18:55:31 +0100
 Subject: [PATCH] Port SWM patches
 
 
@@ -107,41 +107,51 @@ index 0000000000000000000000000000000000000000..e1d4fc66bf0ac3183fdc27ff6d12e5b0
 +}
 \ No newline at end of file
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 966b6e2f9b7c473d8dfcae205d8ef8f08912ded9..979688fad491d2c2579612378ecfdb1782963151 100644
+index 137c52999666ea331ac52c230f0674d489a95524..c1aeef69d853b56cffa56ccd2565cf8fcb2bc3cb 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -404,10 +404,12 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
-     }
+@@ -425,13 +425,13 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
  
-     protected void loadWorld(String s) {
+             overworldData = new WorldDataServer(worldsettings, generatorsettings, Lifecycle.stable());
+         }
+-
 +        WorldServer[] defaultWorlds = (WorldServer[]) com.grinderwolf.swm.clsm.ClassModifier.getDefaultWorlds(); // Arcadium - Fetch world from SWM
-         int worldCount = 3;
+         GeneratorSettings overworldSettings = overworldData.getGeneratorSettings();
+         RegistryMaterials<WorldDimension> registrymaterials = overworldSettings.d();
+         for (Entry<ResourceKey<WorldDimension>, WorldDimension> entry : registrymaterials.d()) {
+             ResourceKey<WorldDimension> dimensionKey = entry.getKey();
  
-         for (int worldId = 0; worldId < worldCount; ++worldId) {
 -            WorldServer world;
 +            WorldServer world = null; // Arcadium - Fetch world from SWM
-+            if (defaultWorlds != null) world = defaultWorlds[worldId]; // Arcadium - Fetch world from SWM
-             WorldDataServer worlddata;
-             byte dimension = 0;
-             ResourceKey<WorldDimension> dimensionKey = WorldDimension.OVERWORLD;
-@@ -538,14 +540,14 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+             int dimension = 0;
+ 
+             if (dimensionKey == WorldDimension.THE_NETHER) {
+@@ -450,6 +450,8 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+                 dimension = -999;
+             }
+ 
++            if (defaultWorlds != null) world = defaultWorlds[dimension]; // Arcadium - Fetch world from SWM
++
+             String worldType = (dimension == -999) ? dimensionKey.a().getNamespace() + "_" + dimensionKey.a().getKey() : org.bukkit.World.Environment.getEnvironment(dimension).toString().toLowerCase();
+             String name = (dimensionKey == WorldDimension.OVERWORLD) ? s : s + "_" + worldType;
+             if (dimension != 0) {
+@@ -549,6 +551,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
  
                  WorldLoadListener worldloadlistener = this.worldLoadListenerFactory.create(11);
  
--                world = new WorldServer(this, this.executorService, worldSession, iworlddataserver, worldKey, dimensionmanager, worldloadlistener, chunkgenerator, flag, j, list, true, org.bukkit.World.Environment.getEnvironment(dimension), gen);
-+               if (world == null) world = new WorldServer(this, this.executorService, worldSession, iworlddataserver, worldKey, dimensionmanager, worldloadlistener, chunkgenerator, flag, j, list, true, org.bukkit.World.Environment.getEnvironment(dimension), gen); // Arcadium - Fetch world from SWM
++                if (world == null) // Arcadium - Fetch world from SWM
+                 world = new WorldServer(this, this.executorService, worldSession, iworlddataserver, worldKey, dimensionmanager, worldloadlistener, chunkgenerator, flag, j, list, true, org.bukkit.World.Environment.getEnvironment(dimension), gen);
                  WorldPersistentData worldpersistentdata = world.getWorldPersistentData();
                  this.initializeScoreboards(worldpersistentdata);
-                 this.server.scoreboardManager = new org.bukkit.craftbukkit.scoreboard.CraftScoreboardManager(this, world.getScoreboard());
+@@ -556,6 +559,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
                  this.persistentCommandStorage = new PersistentCommandStorage(worldpersistentdata);
              } else {
                  WorldLoadListener worldloadlistener = this.worldLoadListenerFactory.create(11);
--                world = new WorldServer(this, this.executorService, worldSession, iworlddataserver, worldKey, dimensionmanager, worldloadlistener, chunkgenerator, flag, j, ImmutableList.of(), true, org.bukkit.World.Environment.getEnvironment(dimension), gen);
-+               if (world == null) world = new WorldServer(this, this.executorService, worldSession, iworlddataserver, worldKey, dimensionmanager, worldloadlistener, chunkgenerator, flag, j, ImmutableList.of(), true, org.bukkit.World.Environment.getEnvironment(dimension), gen); // Arcadium - Fetch world from SWM
++                if (world == null) // Arcadium - Fetch world from SWM
+                 world = new WorldServer(this, this.executorService, worldSession, iworlddataserver, worldKey, dimensionmanager, worldloadlistener, chunkgenerator, flag, j, ImmutableList.of(), true, org.bukkit.World.Environment.getEnvironment(dimension), gen);
              }
  
-             worlddata.a(this.getServerModName(), this.getModded().isPresent());
-@@ -802,6 +804,10 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+@@ -811,6 +815,10 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
      }
  
      public EnumGamemode getGamemode() {
@@ -153,10 +163,10 @@ index 966b6e2f9b7c473d8dfcae205d8ef8f08912ded9..979688fad491d2c2579612378ecfdb17
      }
  
 diff --git a/src/main/java/net/minecraft/server/level/PlayerChunkMap.java b/src/main/java/net/minecraft/server/level/PlayerChunkMap.java
-index 4f11a19137531a0406a5214cd0cce0bea06d0088..797931807156836a6d0079077dae8671f33710aa 100644
+index 12c0a0cebc9db542a654ff2a2826f1bcf4a72baa..43468bc23dcda91722abd3b97d8768e3d20da600 100644
 --- a/src/main/java/net/minecraft/server/level/PlayerChunkMap.java
 +++ b/src/main/java/net/minecraft/server/level/PlayerChunkMap.java
-@@ -1290,6 +1290,12 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+@@ -1255,6 +1255,12 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
      }
  
      private CompletableFuture<Either<IChunkAccess, PlayerChunk.Failure>> f(ChunkCoordIntPair chunkcoordintpair) {
@@ -169,7 +179,7 @@ index 4f11a19137531a0406a5214cd0cce0bea06d0088..797931807156836a6d0079077dae8671
          // Paper start - Async chunk io
          final java.util.function.BiFunction<ChunkRegionLoader.InProgressChunkHolder, Throwable, Either<IChunkAccess, PlayerChunk.Failure>> syncLoadComplete = (chunkHolder, ioThrowable) -> {
              try (Timing ignored = this.world.timings.chunkLoad.startTimingIfSync()) { // Paper
-@@ -1595,6 +1601,11 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+@@ -1560,6 +1566,11 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
      }
  
      public boolean saveChunk(IChunkAccess ichunkaccess) {
@@ -215,7 +225,7 @@ index f02840e04fa1644901292b3ec67720cb64c2931d..97a0227b85592d3ad5d2b7ea59d50bd2
              NBTTagCompound nbttagcompound = new NBTTagCompound();
  
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 10fda34ce47803db2af5c3175774931b80e25c07..a4c90fe8b739172bb184b75aa0538ccb1d101fd5 100644
+index aa6635a64101526ecef5a6f87269d28a3dc75902..3f0eff625e1c31a7da51f701943fcf46e847a819 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -1265,6 +1265,11 @@ public final class CraftServer implements Server {

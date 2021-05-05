@@ -6,7 +6,7 @@ Subject: [PATCH] Properly replace profile name on playerList when modifying
 
 
 diff --git a/src/main/java/net/minecraft/server/network/PlayerConnection.java b/src/main/java/net/minecraft/server/network/PlayerConnection.java
-index 2f5edccd8a706dfc1e43101346f199899f6f508c..b38cd815b2c260561f106248d39a62a4bc9d8489 100644
+index 753f3d65fe9b46b6ad1ee5c30546d1dd306c1bed..71ed37eee51ac024dd3805362de25933246a8001 100644
 --- a/src/main/java/net/minecraft/server/network/PlayerConnection.java
 +++ b/src/main/java/net/minecraft/server/network/PlayerConnection.java
 @@ -99,6 +99,7 @@ import net.minecraft.network.protocol.game.PacketPlayOutHeldItemSlot;
@@ -18,7 +18,7 @@ index 2f5edccd8a706dfc1e43101346f199899f6f508c..b38cd815b2c260561f106248d39a62a4
  import net.minecraft.network.protocol.game.PacketPlayOutSetSlot;
  import net.minecraft.network.protocol.game.PacketPlayOutTabComplete;
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 415e8c95d5679a90ac1b4ee3219fecc7e6c6c5d0..f3b1628c8d69837588c86ed4017a627c4e74b240 100644
+index a48be9b22ec2156a640daa29b8f5b69d27b28365..2c1cfaa090d7ef572d777a3b084844828c704eb0 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
 @@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
@@ -50,7 +50,7 @@ index 415e8c95d5679a90ac1b4ee3219fecc7e6c6c5d0..f3b1628c8d69837588c86ed4017a627c
  
      public PlayerList(MinecraftServer minecraftserver, IRegistryCustom.Dimension iregistrycustom_dimension, WorldNBTStorage worldnbtstorage, int i) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 0b9539473750cf5ea9302daebfa990316b26e365..10fda34ce47803db2af5c3175774931b80e25c07 100644
+index 008d615d552ead5f85965d52d458efc04f2a1c0d..aa6635a64101526ecef5a6f87269d28a3dc75902 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -243,7 +243,7 @@ public final class CraftServer implements Server {

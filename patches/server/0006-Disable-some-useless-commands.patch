@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: NickAc <32451103+NickAcPT@users.noreply.github.com>
-Date: Thu, 1 Apr 2021 22:03:32 +0100
+From: NickAcPT <32451103+NickAcPT@users.noreply.github.com>
+Date: Wed, 5 May 2021 18:55:41 +0100
 Subject: [PATCH] Disable some useless commands
 
 
 diff --git a/src/main/java/net/minecraft/commands/CommandDispatcher.java b/src/main/java/net/minecraft/commands/CommandDispatcher.java
-index b7663a3d64ae5202abb93eabba6ec013bae96334..fd6be759df19ef3c9321cde4230ac50deb035687 100644
+index 079b8444d13121f0f01860e88cea25cce9d0cc7e..7261e326dec620156060e0aa17d0698e0dc948cd 100644
 --- a/src/main/java/net/minecraft/commands/CommandDispatcher.java
 +++ b/src/main/java/net/minecraft/commands/CommandDispatcher.java
 @@ -130,7 +130,7 @@ public class CommandDispatcher {
@@ -41,6 +41,6 @@ index b7663a3d64ae5202abb93eabba6ec013bae96334..fd6be759df19ef3c9321cde4230ac50d
              CommandStop.a(this.b);
 -            CommandWhitelist.a(this.b);
 +            //CommandWhitelist.a(this.b); // Arcadium - Disable some commands
+             net.pl3x.purpur.command.CreditsCommand.register(getDispatcher()); // Purpur
              net.pl3x.purpur.command.DemoCommand.register(getDispatcher()); // Purpur
              net.pl3x.purpur.command.PingCommand.register(getDispatcher()); // Purpur
-             net.pl3x.purpur.command.TPSBarCommand.register(getDispatcher()); // Purpur

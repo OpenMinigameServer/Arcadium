@@ -1,14 +1,14 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: NickAcPT <32451103+NickAcPT@users.noreply.github.com>
-Date: Wed, 5 May 2021 10:32:56 +0100
+Date: Wed, 5 May 2021 19:01:07 +0100
 Subject: [PATCH] Add Hologram framework
 
 
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 979688fad491d2c2579612378ecfdb1782963151..3eaea9cd08d87578d098c6e3bf8435b57c78d7d9 100644
+index c1aeef69d853b56cffa56ccd2565cf8fcb2bc3cb..a9f729d385d4be2b8cc4ac954c23754358022f86 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -987,6 +987,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+@@ -998,6 +998,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
      }
      public void safeShutdown(boolean flag, boolean isRestarting) {
          net.pl3x.purpur.task.TPSBarTask.stop(); // Purpur
@@ -17,7 +17,7 @@ index 979688fad491d2c2579612378ecfdb1782963151..3eaea9cd08d87578d098c6e3bf8435b5
          this.isRestarting = isRestarting;
          this.hasLoggedStop = true; // Paper
 diff --git a/src/main/java/net/minecraft/server/network/PlayerConnection.java b/src/main/java/net/minecraft/server/network/PlayerConnection.java
-index b38cd815b2c260561f106248d39a62a4bc9d8489..631e7cd472e23c1218d55b0bb2a76b744b230d2a 100644
+index 71ed37eee51ac024dd3805362de25933246a8001..25ef3688abb39346bee0fc530c9b689d5ca75cde 100644
 --- a/src/main/java/net/minecraft/server/network/PlayerConnection.java
 +++ b/src/main/java/net/minecraft/server/network/PlayerConnection.java
 @@ -151,7 +151,6 @@ import net.minecraft.world.level.block.entity.TileEntityCommand;
@@ -28,15 +28,15 @@ index b38cd815b2c260561f106248d39a62a4bc9d8489..631e7cd472e23c1218d55b0bb2a76b74
  import net.minecraft.world.level.block.state.IBlockData;
  import net.minecraft.world.phys.AxisAlignedBB;
  import net.minecraft.world.phys.MovingObjectPositionBlock;
-@@ -219,6 +218,7 @@ import org.bukkit.inventory.EquipmentSlot;
- import org.bukkit.inventory.InventoryView;
+@@ -221,6 +220,7 @@ import org.bukkit.inventory.InventoryView;
+ import org.bukkit.inventory.SmithingInventory;
  import org.bukkit.util.NumberConversions;
  import co.aikar.timings.MinecraftTimings; // Paper
 +import org.screamingsandals.lib.bukkit.hologram.BukkitHologramManager;
  // CraftBukkit end
  
  public class PlayerConnection implements PacketListenerPlayIn {
-@@ -2449,6 +2449,9 @@ public class PlayerConnection implements PacketListenerPlayIn {
+@@ -2464,6 +2464,9 @@ public class PlayerConnection implements PacketListenerPlayIn {
              return;
          }
          // Spigot End
@@ -47,7 +47,7 @@ index b38cd815b2c260561f106248d39a62a4bc9d8489..631e7cd472e23c1218d55b0bb2a76b74
          this.player.resetIdleTimer();
          this.player.setSneaking(packetplayinuseentity.e());
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index a4c90fe8b739172bb184b75aa0538ccb1d101fd5..2011261ad71d92c995eef77e4856e985ce8f7cc9 100644
+index 3f0eff625e1c31a7da51f701943fcf46e847a819..4b1328e46da60efb064b9c0290ea8b6867831a2d 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -222,6 +222,9 @@ import org.bukkit.potion.PotionEffectType;
@@ -60,7 +60,7 @@ index a4c90fe8b739172bb184b75aa0538ccb1d101fd5..2011261ad71d92c995eef77e4856e985
  import org.yaml.snakeyaml.Yaml;
  import org.yaml.snakeyaml.constructor.SafeConstructor;
  import org.yaml.snakeyaml.error.MarkedYAMLException;
-@@ -2543,4 +2546,28 @@ public final class CraftServer implements Server {
+@@ -2542,4 +2545,28 @@ public final class CraftServer implements Server {
          return getServer().lagging;
      }
      // Purpur end

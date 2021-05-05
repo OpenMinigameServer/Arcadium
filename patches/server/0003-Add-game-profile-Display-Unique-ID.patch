@@ -5,7 +5,7 @@ Subject: [PATCH] Add game profile Display Unique ID
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java b/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java
-index 040fd0c3fc4bc3a04fe5dff919a41fe9b474708e..9c0fdc67dcbdf691311dc357204a61bf4d716ebc 100644
+index 3d9452892a4077e64f37424052a9e52d76dd7a6d..902787dc124b315b76dc5f457b5b5b460e811b7b 100644
 --- a/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java
 +++ b/src/main/java/com/destroystokyo/paper/profile/CraftPlayerProfile.java
 @@ -33,6 +33,10 @@ public class CraftPlayerProfile implements PlayerProfile {
@@ -208,10 +208,10 @@ index 2758cf87fe5cb89c101f2495783c72a2fe4ad632..c1304e1ca3d122b416812fb5cff256a1
              return this.b;
          }
 diff --git a/src/main/java/net/minecraft/server/level/EntityPlayer.java b/src/main/java/net/minecraft/server/level/EntityPlayer.java
-index b4dbc59faff3fd6ceb74d829762eb68e649975c5..326aa11d028a6717216515b6291f34abe4e5ebff 100644
+index 4ec18d28c0022614b0ef6900774ddd4bda814308..6bee83818f8f7b54824cfee48b5c2797e76c27ed 100644
 --- a/src/main/java/net/minecraft/server/level/EntityPlayer.java
 +++ b/src/main/java/net/minecraft/server/level/EntityPlayer.java
-@@ -2036,6 +2036,7 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
+@@ -2034,6 +2034,7 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
  
      @Override
      public void sendMessage(IChatBaseComponent ichatbasecomponent, UUID uuid) {
@@ -220,10 +220,10 @@ index b4dbc59faff3fd6ceb74d829762eb68e649975c5..326aa11d028a6717216515b6291f34ab
      }
  
 diff --git a/src/main/java/net/minecraft/server/network/PlayerConnection.java b/src/main/java/net/minecraft/server/network/PlayerConnection.java
-index 8359ccf316d292d81c56600887178cea6e33f270..2f5edccd8a706dfc1e43101346f199899f6f508c 100644
+index 03a61aa91191b44284e9b4d02f2c57eaf2de7105..753f3d65fe9b46b6ad1ee5c30546d1dd306c1bed 100644
 --- a/src/main/java/net/minecraft/server/network/PlayerConnection.java
 +++ b/src/main/java/net/minecraft/server/network/PlayerConnection.java
-@@ -1992,6 +1992,21 @@ public class PlayerConnection implements PacketListenerPlayIn {
+@@ -2006,6 +2006,21 @@ public class PlayerConnection implements PacketListenerPlayIn {
              }
          }
  
@@ -245,7 +245,7 @@ index 8359ccf316d292d81c56600887178cea6e33f270..2f5edccd8a706dfc1e43101346f19989
          // CraftBukkit start
          if (packet == null || this.processedDisconnect) { // Spigot
              return;
-@@ -2120,7 +2135,7 @@ public class PlayerConnection implements PacketListenerPlayIn {
+@@ -2135,7 +2150,7 @@ public class PlayerConnection implements PacketListenerPlayIn {
              } else {
                  ChatMessage chatmessage = new ChatMessage("chat.type.text", new Object[]{this.player.getScoreboardDisplayName(), s});
  
@@ -255,10 +255,10 @@ index 8359ccf316d292d81c56600887178cea6e33f270..2f5edccd8a706dfc1e43101346f19989
  
              // Spigot start - spam exclusions
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 8b76e61228c8c766aaef9afe3fc81fc17a10d72c..415e8c95d5679a90ac1b4ee3219fecc7e6c6c5d0 100644
+index d8d54274b5a294391b8bf2bc660c6b623914f5bf..a48be9b22ec2156a640daa29b8f5b69d27b28365 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
-@@ -1102,13 +1102,13 @@ public abstract class PlayerList {
+@@ -1110,13 +1110,13 @@ public abstract class PlayerList {
          ScoreboardTeamBase scoreboardteambase = entityhuman.getScoreboardTeam();
  
          if (scoreboardteambase == null) {

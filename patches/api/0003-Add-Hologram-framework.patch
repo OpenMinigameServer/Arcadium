@@ -1,0 +1,656 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: NickAcPT <32451103+NickAcPT@users.noreply.github.com>
+Date: Wed, 5 May 2021 10:32:59 +0100
+Subject: [PATCH] Add Hologram framework
+
+
+diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
+index d754200879bda29d582998433e1a304a6988bbbb..ed4a7cddc8afb470c6c075936f4cd0de8c42a99d 100644
+--- a/src/main/java/org/bukkit/Bukkit.java
++++ b/src/main/java/org/bukkit/Bukkit.java
+@@ -50,6 +50,7 @@ import org.bukkit.util.CachedServerIcon;
+ import org.jetbrains.annotations.Contract;
+ import org.jetbrains.annotations.NotNull;
+ import org.jetbrains.annotations.Nullable;
++import org.screamingsandals.lib.hologram.Hologram;
+ 
+ /**
+  * Represents the Bukkit core, for version and Server singleton handling
+@@ -1963,4 +1964,42 @@ public final class Bukkit {
+         return server.isLagging();
+     }
+     // Purpur end
++    // Arcadium start
++    /**
++     * Create an empty hologram in the specified location
++     * @param location The location of where to create the hologram
++     * @return A new and empty hologram
++     */
++    @NotNull
++    public static Hologram createHologram(@NotNull Location location) {
++        return server.createHologram(location);
++    }
++
++    /**
++     * Create an empty touchable hologram in the specified location
++     * @param location The location of where to create the hologram
++     * @return A new and empty touchable hologram
++     */
++    @NotNull
++    public static Hologram createTouchableHologram(@NotNull Location location) {
++        return server.createTouchableHologram(location);
++    }
++
++    /**
++     * Get an existing hologram
++     * @param id The id of the Hologram to get
++     * @return The hologram or null, if doesn't exist
++     */
++    public static @Nullable Hologram getHologram(@NotNull UUID id) {
++        return server.getHologram(id);
++    }
++
++    /**
++     * Remove an existing hologram
++     * @param hologram The hologram to remove
++     */
++    public static void removeHologram(@NotNull Hologram hologram) {
++        server.removeHologram(hologram);
++    }
++    // Arcadium end
+ }
+diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
+index 0a3acc1aa156900aa2a6a5682ffb8c3dc25e7534..1e3728eec3bae6bda75918a924a8dc4bfa498026 100644
+--- a/src/main/java/org/bukkit/Server.java
++++ b/src/main/java/org/bukkit/Server.java
+@@ -51,6 +51,7 @@ import org.bukkit.util.CachedServerIcon;
+ import org.jetbrains.annotations.Contract;
+ import org.jetbrains.annotations.NotNull;
+ import org.jetbrains.annotations.Nullable;
++import org.screamingsandals.lib.hologram.Hologram;
+ 
+ /**
+  * Represents a server implementation.
+@@ -1738,4 +1739,34 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+      */
+     boolean isLagging();
+     // Purpur end
++    // Arcadium start
++    /**
++     * Create an empty hologram in the specified location
++     * @param location The location of where to create the hologram
++     * @return A new and empty hologram
++     */
++    @NotNull
++    Hologram createHologram(@NotNull Location location);
++
++    /**
++     * Create an empty touchable hologram in the specified location
++     * @param location The location of where to create the hologram
++     * @return A new and empty touchable hologram
++     */
++    @NotNull
++    Hologram createTouchableHologram(@NotNull Location location);
++
++    /**
++     * Get an existing hologram
++     * @param id The id of the Hologram to get
++     * @return The hologram or null, if doesn't exist
++     */
++    @Nullable Hologram getHologram(@NotNull UUID id);
++
++    /**
++     * Remove an existing hologram
++     * @param hologram The hologram to remove
++     */
++    void removeHologram(@NotNull Hologram hologram);
++    // Arcadium end
+ }
+diff --git a/src/main/java/org/screamingsandals/lib/hologram/Hologram.java b/src/main/java/org/screamingsandals/lib/hologram/Hologram.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..73c2e231dcbae1e1b65a53b505ed243f0d8210d4
+--- /dev/null
++++ b/src/main/java/org/screamingsandals/lib/hologram/Hologram.java
+@@ -0,0 +1,324 @@
++package org.screamingsandals.lib.hologram;
++
++
++import java.util.Collection;
++import java.util.List;
++import java.util.Map;
++import java.util.Optional;
++import java.util.Set;
++import java.util.UUID;
++import net.kyori.adventure.text.Component;
++import org.bukkit.Location;
++import org.bukkit.entity.Player;
++import org.bukkit.inventory.ItemStack;
++import org.bukkit.persistence.PersistentDataContainer;
++import org.jetbrains.annotations.NotNull;
++import org.jetbrains.annotations.Nullable;
++import org.screamingsandals.lib.utils.visual.TextEntry;
++
++/**
++ * Hologram that shows some text.
++ */
++public interface Hologram {
++    /**
++     * Default rate that the item is rotated.
++     */
++    double DEFAULT_ROTATION_INCREMENT = 10;
++    /**
++     * This is default view distance SQUARED!
++     * <p>
++     * That means that at this distance, you will see the hologram from 64 blocks away.
++     */
++    int DEFAULT_VIEW_DISTANCE = 4096;
++
++
++    /**
++     * Checks if you can interact with this Hologram
++     *
++     * @return true if this hologram is touchable
++     */
++    boolean isTouchable();
++
++    /**
++     * Changes interact state for this hologram
++     *
++     * @param touchable touchable state
++     * @return this hologram
++     */
++    @NotNull Hologram setTouchable(boolean touchable);
++
++    /**
++     * @return current rotation time
++     */
++    @NotNull Integer getRotationTime();
++
++    /**
++     * The rotation time settings.
++     *
++     * @param rotatingTime Amount of time in ticks.
++     * @return this hologram
++     */
++    @NotNull Hologram rotationTime(@NotNull Integer rotatingTime);
++
++    /**
++     * @return current rotation mode
++     */
++    @NotNull RotationMode getRotationMode();
++
++    /**
++     * The mode that the Hologram should be rotating
++     *
++     * @param mode rotation mode
++     * @return this hologram
++     */
++    @NotNull Hologram rotationMode(@NotNull RotationMode mode);
++
++    /**
++     * Stands for how much should this hologram rotate per one cycle
++     *
++     * @param toIncrement
++     * @return
++     */
++    @NotNull Hologram rotationIncrement(float toIncrement);
++
++    /**
++     * Changes the item to show
++     *
++     * @param item item to show
++     * @return this hologram
++     */
++    @NotNull Hologram item(@NotNull ItemStack item);
++
++    /**
++     * Position of the item shown as hologram
++     *
++     * @param position position of the item
++     * @return this hologram
++     */
++    @NotNull Hologram itemPosition(@NotNull ItemPosition position);
++
++    /**
++     * @return current item position
++     */
++    @NotNull ItemPosition getItemPosition();
++
++    @Nullable PersistentDataContainer getData();
++
++    void setData(@Nullable PersistentDataContainer data);
++
++    boolean hasData();
++
++    /**
++     * Each visual can have its UUID.
++     *
++     * @return UUID of this visual.
++     */
++    @NotNull UUID getUuid();
++
++    /**
++     * @return viewers that are currently looking and this visual.
++     */
++    @NotNull Collection<Player> getViewers();
++
++    @NotNull Hologram update();
++
++    @NotNull Hologram show();
++
++    @NotNull Hologram hide();
++
++    @NotNull
++    Hologram addViewer(@NotNull Player viewer);
++
++    @NotNull
++    Hologram removeViewer(@NotNull Player viewer);
++
++    @NotNull
++    Hologram clearViewers();
++
++    @NotNull
++    Hologram title(@NotNull Component title);
++
++    /**
++     * Checks if this Visual has any viewers.
++     *
++     * @return true if yes, duh.
++     */
++    boolean hasViewers();
++
++    boolean isShown();
++
++    void destroy();
++
++    /**
++     * This is immutable copy of the existing lines.
++     * Changes to this will have no effects on the actual lines! :) (and shh, you will get exception probably)
++     *
++     * @return currently displayed lines.
++     */
++    @NotNull
++    Map<Integer, TextEntry> getLines();
++
++    /**
++     * Tries to get a line by given identifier.
++     *
++     * @param identifier where's my identity?!
++     * @return this visual
++     */
++    @NotNull
++    Optional<Map.Entry<Integer, TextEntry>> getLineByIdentifier(@NotNull String identifier);
++
++    /**
++     * Adds new line to this visual and moves everything else 1 line down.
++     *
++     * @param text text to add
++     * @return this visual
++     */
++    @NotNull
++    Hologram firstLine(@NotNull Component text);
++
++    /**
++     * Adds new line to this visual and moves everything else 1 line down.
++     *
++     * @param text text to add
++     * @return this visual
++     */
++    @NotNull
++    Hologram firstLine(@NotNull TextEntry text);
++
++    /**
++     * Adds new line to the bottom of this visual.
++     *
++     * @param text text to add
++     * @return this visual
++     */
++    @NotNull Hologram bottomLine(@NotNull Component text);
++
++    /**
++     * Adds new line to the bottom of this visual.
++     *
++     * @param text text to add
++     * @return this visual
++     */
++    @NotNull Hologram bottomLine(@NotNull TextEntry text);
++
++    /**
++     * Replaces a line that has {@link TextEntry#getIdentifier()} on it.
++     *
++     * @param text text to replace
++     * @return this visual
++     */
++    @NotNull Hologram replaceLine(@NotNull TextEntry text);
++
++    /**
++     * Replaces a line.
++     *
++     * @param where where to replace
++     * @param text  text to replace
++     * @return this visual
++     */
++    @NotNull Hologram replaceLine(@NotNull Integer where, @NotNull Component text);
++
++    /**
++     * Replaces a line.
++     *
++     * @param where where to replace
++     * @param text  text to replace
++     * @return this visual
++     */
++    @NotNull Hologram replaceLine(@NotNull Integer where, @NotNull TextEntry text);
++
++    /**
++     * Replaces all lines.
++     *
++     * @param lines new lines :)
++     * @return this visual
++     */
++    @NotNull Hologram setLines(@NotNull Map<Integer, TextEntry> lines);
++
++    /**
++     * Replaces all lines.
++     *
++     * @param lines new lines :)
++     * @return this visual
++     */
++    @NotNull Hologram setLines(@NotNull List<Component> lines);
++
++    /**
++     * Replaces all lines.
++     *
++     * @param lines new lines :)
++     * @return this visual
++     */
++    @NotNull Hologram setLines(@NotNull Set<TextEntry> lines);
++
++    /**
++     * Creates a new line and moves everything bellow if anything is already on that line.
++     *
++     * @param where where to add
++     * @param text  text to add
++     * @return this visual
++     */
++    @NotNull Hologram newLine(@NotNull Integer where, @NotNull Component text);
++
++    /**
++     * Creates a new line and moves everything bellow if anything is already on that line.
++     *
++     * @param where where to add
++     * @param text  text to add
++     * @return this visual
++     */
++    @NotNull
++    Hologram newLine(@NotNull Integer where, @NotNull TextEntry text);
++
++    /**
++     * Removes line on given location.
++     *
++     * @param where where to remove
++     * @return this visual
++     */
++    @NotNull
++    Hologram removeLine(@NotNull Integer where);
++
++    /**
++     * Removes line by given identifier.
++     *
++     * @param identifier identifier to remove
++     * @return this visual
++     */
++    @NotNull
++    Hologram removeLine(@NotNull String identifier);
++
++    /**
++     * @return current view distance SQUARED
++     */
++    int getViewDistance();
++
++    @NotNull
++    Hologram setViewDistance(int viewDistance);
++
++    @NotNull Location getLocation();
++
++    @NotNull Hologram setLocation(@NotNull Location location);
++
++    void removeHologram();
++
++    /**
++     * Represents rotation mode
++     */
++    enum RotationMode {
++        X,
++        Y,
++        Z,
++        ALL,
++        XY,
++        NONE
++    }
++
++    /**
++     * Represents Item position
++     */
++    enum ItemPosition {
++        ABOVE,
++        BELOW
++    }
++}
+diff --git a/src/main/java/org/screamingsandals/lib/hologram/event/HologramTouchEvent.java b/src/main/java/org/screamingsandals/lib/hologram/event/HologramTouchEvent.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..023d862568221c56d0deb2d639389f14aefb4723
+--- /dev/null
++++ b/src/main/java/org/screamingsandals/lib/hologram/event/HologramTouchEvent.java
+@@ -0,0 +1,33 @@
++package org.screamingsandals.lib.hologram.event;
++
++import org.bukkit.entity.Player;
++import org.bukkit.event.HandlerList;
++import org.bukkit.event.player.PlayerEvent;
++import org.jetbrains.annotations.NotNull;
++import org.screamingsandals.lib.hologram.Hologram;
++
++public class HologramTouchEvent extends PlayerEvent {
++    private static final HandlerList HANDLERS = new HandlerList();
++    private final Hologram hologram;
++
++
++    public HologramTouchEvent(@NotNull Player who, @NotNull Hologram hologram) {
++        super(who);
++        this.hologram = hologram;
++    }
++
++    @NotNull
++    @Override
++    public HandlerList getHandlers() {
++        return HANDLERS;
++    }
++
++    @NotNull
++    public static HandlerList getHandlerList() {
++        return HANDLERS;
++    }
++
++    @NotNull public Hologram getHologram() {
++        return hologram;
++    }
++}
+diff --git a/src/main/java/org/screamingsandals/lib/utils/visual/SimpleTextEntry.java b/src/main/java/org/screamingsandals/lib/utils/visual/SimpleTextEntry.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..5c29b959e04e0354ee9d27e51d431eb85e541268
+--- /dev/null
++++ b/src/main/java/org/screamingsandals/lib/utils/visual/SimpleTextEntry.java
+@@ -0,0 +1,36 @@
++package org.screamingsandals.lib.utils.visual;
++
++import net.kyori.adventure.text.Component;
++import org.jetbrains.annotations.NotNull;
++
++class SimpleTextEntry implements TextEntry {
++    private final String identifier;
++    private final Component text;
++
++    public SimpleTextEntry(@NotNull String identifier, @NotNull Component text) {
++        this.identifier = identifier;
++        this.text = text;
++    }
++
++    @NotNull
++    static SimpleTextEntry of(@NotNull Component text) {
++        return new SimpleTextEntry("", text);
++    }
++
++    @NotNull
++    static SimpleTextEntry of(@NotNull String identifier, @NotNull Component text) {
++        return new SimpleTextEntry(identifier, text);
++    }
++
++    @Override
++    @NotNull
++    public String getIdentifier() {
++        return identifier;
++    }
++
++    @Override
++    @NotNull
++    public Component getText() {
++        return text;
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/java/org/screamingsandals/lib/utils/visual/TextEntry.java b/src/main/java/org/screamingsandals/lib/utils/visual/TextEntry.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..5881fa0da3b5989e60fe3e03e0fe6351051ce360
+--- /dev/null
++++ b/src/main/java/org/screamingsandals/lib/utils/visual/TextEntry.java
+@@ -0,0 +1,81 @@
++package org.screamingsandals.lib.utils.visual;
++
++import net.kyori.adventure.text.Component;
++import org.jetbrains.annotations.NotNull;
++
++/**
++ * TextEntry is used to identify certain text if not simply possible.
++ */
++public interface TextEntry {
++
++    /**
++     * New text entry!
++     *
++     * @param identifier identifier of this text entry.
++     * @param text       actual text
++     * @return baked text entry
++     */
++    @NotNull
++    static TextEntry of(@NotNull String identifier, @NotNull Component text) {
++        return SimpleTextEntry.of(identifier, text);
++    }
++
++    /**
++     * New text entry!
++     *
++     * @param text actual text
++     * @return baked text entry with no identifier
++     */
++    @NotNull
++    static TextEntry of(@NotNull Component text) {
++        return SimpleTextEntry.of(text);
++    }
++
++    /**
++     * Legacy support.
++     *
++     * @param identifier identifier of this text entry.
++     * @param text       actual text
++     * @return baked text entry
++     */
++    @NotNull
++    static TextEntry of(@NotNull String identifier, @NotNull String text) {
++        return SimpleTextEntry.of(identifier, Component.text(text));
++    }
++
++    /**
++     * Legacy support.
++     *
++     * @param text actual text
++     * @return baked text entry with no identifier
++     */
++    @NotNull
++    static TextEntry of(@NotNull String text) {
++        return SimpleTextEntry.of(Component.text(text));
++    }
++
++    /**
++     * Identifier of this entry.
++     * This can be used to identify certain messages inside visuals or so.
++     *
++     * @return identifier or empty String if undefined.
++     */
++    @NotNull String getIdentifier();
++
++    /**
++     * Text of this entry
++     *
++     * @return the actual text
++     */
++    @NotNull Component getText();
++
++    /**
++     * Checks if the TextEntry is the same.
++     *
++     * @param another another entry
++     * @return true if the identifier is the same.
++     */
++    default boolean isSame(@NotNull TextEntry another) {
++        return getIdentifier().equalsIgnoreCase(another.getIdentifier());
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/java/org/screamingsandals/lib/visuals/utils/VisualUtils.java b/src/main/java/org/screamingsandals/lib/visuals/utils/VisualUtils.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..f61ce3fdf09da6362c0696adf046c6a8e491927d
+--- /dev/null
++++ b/src/main/java/org/screamingsandals/lib/visuals/utils/VisualUtils.java
+@@ -0,0 +1,41 @@
++package org.screamingsandals.lib.visuals.utils;
++
++import java.util.concurrent.ConcurrentNavigableMap;
++import org.jetbrains.annotations.NotNull;
++import org.screamingsandals.lib.utils.visual.TextEntry;
++
++import java.util.concurrent.ConcurrentSkipListMap;
++
++public class VisualUtils {
++
++    @NotNull
++    public static ConcurrentSkipListMap<Integer, TextEntry> addEntryAndMoveRest(@NotNull ConcurrentSkipListMap<Integer, TextEntry> input, @NotNull Integer line, @NotNull TextEntry text) {
++        if (!input.containsKey(line)) {
++            input.put(line, text);
++            return input;
++        }
++
++        @NotNull final ConcurrentNavigableMap<Integer, TextEntry> head = input.headMap(line);
++        @NotNull final ConcurrentNavigableMap<Integer, TextEntry> tail = input.tailMap(line);
++
++        @NotNull final ConcurrentSkipListMap<Integer, TextEntry> toReturn = new ConcurrentSkipListMap<>(head);
++        tail.forEach((key, value) -> toReturn.put(key + 1, value));
++        toReturn.put(line, text);
++        return toReturn;
++    }
++
++    @NotNull
++    public static ConcurrentSkipListMap<Integer, TextEntry> removeEntryAndMoveRest(@NotNull ConcurrentSkipListMap<Integer, TextEntry> input, @NotNull Integer line) {
++        if (!input.containsKey(line)) {
++            return input;
++        }
++
++        @NotNull final ConcurrentNavigableMap<Integer, TextEntry> head = input.headMap(line);
++        @NotNull final ConcurrentNavigableMap<Integer, TextEntry> tail = input.tailMap(line);
++
++        @NotNull final ConcurrentSkipListMap<Integer, TextEntry> toReturn = new ConcurrentSkipListMap<>(head);
++        tail.forEach((key, value) -> toReturn.put(key - 1, value));
++        return toReturn;
++    }
++
++}
+\ No newline at end of file

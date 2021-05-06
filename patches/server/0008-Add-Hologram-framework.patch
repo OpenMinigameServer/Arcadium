@@ -477,10 +477,10 @@ index 0000000000000000000000000000000000000000..5eb477e3180dee16ccd2016a1275bcde
 \ No newline at end of file
 diff --git a/src/main/java/org/screamingsandals/lib/bukkit/hologram/BukkitHologramManager.java b/src/main/java/org/screamingsandals/lib/bukkit/hologram/BukkitHologramManager.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..c584ef427d7fa3586b6ed6e4082ccac2c72ea7ea
+index 0000000000000000000000000000000000000000..998a58dd7ee6c7a89dcef51bbb8a16637aef8d6e
 --- /dev/null
 +++ b/src/main/java/org/screamingsandals/lib/bukkit/hologram/BukkitHologramManager.java
-@@ -0,0 +1,314 @@
+@@ -0,0 +1,312 @@
 +package org.screamingsandals.lib.bukkit.hologram;
 +
 +import java.util.Collection;
@@ -547,13 +547,6 @@ index 0000000000000000000000000000000000000000..c584ef427d7fa3586b6ed6e4082ccac2
 +            @EventHandler
 +            public void on(@NotNull PlayerChangedWorldEvent e) {
 +                onWorldChange(e);
-+            }
-+
-+            @EventHandler
-+            public void on(@NotNull PluginDisableEvent e) {
-+                if (e.getPlugin().equals(plugin)) {
-+                    destroy();
-+                }
 +            }
 +        }, plugin);
 +    }
@@ -789,19 +782,24 @@ index 0000000000000000000000000000000000000000..c584ef427d7fa3586b6ed6e4082ccac2
 +    }
 +
 +    public void destroy() {
-+        getActiveHolograms()
-+                .values()
-+                .forEach(Hologram::destroy);
++        for (Hologram hologram : getActiveHolograms()
++                .values()) {
++            if (hologram instanceof AbstractHologram) {
++                ((AbstractHologram) hologram).destroy(false);
++            } else {
++                hologram.destroy();
++            }
++        }
 +        getInstance().activeHolograms.clear();
 +    }
 +}
 \ No newline at end of file
 diff --git a/src/main/java/org/screamingsandals/lib/hologram/AbstractHologram.java b/src/main/java/org/screamingsandals/lib/hologram/AbstractHologram.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..eb7c20c0cdf5dbd23acac9697cac8026c1b34c90
+index 0000000000000000000000000000000000000000..6ffcc9918203d10fb11048c8feca99a32cda8523
 --- /dev/null
 +++ b/src/main/java/org/screamingsandals/lib/hologram/AbstractHologram.java
-@@ -0,0 +1,381 @@
+@@ -0,0 +1,387 @@
 +package org.screamingsandals.lib.hologram;
 +
 +
@@ -998,11 +996,17 @@ index 0000000000000000000000000000000000000000..eb7c20c0cdf5dbd23acac9697cac8026
 +    protected abstract void update0();
 +
 +    public void destroy() {
++        destroy(true);
++    }
++
++    public void destroy(boolean removeHologram) {
 +        data = null;
 +        hide();
 +        viewers.clear();
 +
-+        BukkitHologramManager.removeHologram(this);
++        if (removeHologram) {
++            BukkitHologramManager.removeHologram(this);
++        }
 +    }
 +
 +    public boolean isVisible() {

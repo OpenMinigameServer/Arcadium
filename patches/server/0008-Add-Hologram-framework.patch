@@ -477,10 +477,10 @@ index 0000000000000000000000000000000000000000..5eb477e3180dee16ccd2016a1275bcde
 \ No newline at end of file
 diff --git a/src/main/java/org/screamingsandals/lib/bukkit/hologram/BukkitHologramManager.java b/src/main/java/org/screamingsandals/lib/bukkit/hologram/BukkitHologramManager.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..998a58dd7ee6c7a89dcef51bbb8a16637aef8d6e
+index 0000000000000000000000000000000000000000..e1d821ba157e63ee2824aed11cd57bb9fedf2702
 --- /dev/null
 +++ b/src/main/java/org/screamingsandals/lib/bukkit/hologram/BukkitHologramManager.java
-@@ -0,0 +1,312 @@
+@@ -0,0 +1,296 @@
 +package org.screamingsandals.lib.bukkit.hologram;
 +
 +import java.util.Collection;
@@ -552,8 +552,7 @@ index 0000000000000000000000000000000000000000..998a58dd7ee6c7a89dcef51bbb8a1663
 +    }
 +
 +    public static @NotNull Map<UUID, Hologram> getActiveHolograms() {
-+
-+        return Collections.unmodifiableMap(getInstance().activeHolograms);
++        return Map.copyOf(getInstance().activeHolograms);
 +    }
 +
 +    public static Optional<Hologram> getHologram(UUID uuid) {
@@ -640,7 +639,6 @@ index 0000000000000000000000000000000000000000..998a58dd7ee6c7a89dcef51bbb8a1663
 +                final @NotNull Collection<Player> viewers = hologram.getViewers();
 +                final Location hologramLocation = hologram.getLocation();
 +                if (hologramLocation == null) {
-+                    //log.trace("Location is empty");
 +                    return;
 +                }
 +
@@ -650,12 +648,10 @@ index 0000000000000000000000000000000000000000..998a58dd7ee6c7a89dcef51bbb8a1663
 +                        && hologramLocation.getWorld().equals(player.getLocation().getWorld())) {
 +                    if (event.getTo().distanceSquared(hologramLocation) < viewDistance
 +                            && event.getFrom().distanceSquared(hologramLocation) >= viewDistance) {
-+                        //log.trace("Adding player viewer to hologram.");
 +                        castedHologram.onViewerAdded(player, false);
 +                    } else if (event.getTo().distanceSquared(hologramLocation) >= viewDistance
 +                            && event.getFrom().distanceSquared(hologramLocation) < viewDistance) {
 +                        castedHologram.onViewerRemoved(player, false);
-+                        //log.trace("Removing player viewer from hologram");
 +                    }
 +                }
 +            } catch (Throwable t) {
@@ -679,7 +675,6 @@ index 0000000000000000000000000000000000000000..998a58dd7ee6c7a89dcef51bbb8a1663
 +                final @NotNull Collection<Player> viewers = hologram.getViewers();
 +                final Location hologramLocation = hologram.getLocation();
 +                if (hologramLocation == null) {
-+                    //log.trace("Location is empty");
 +                    return;
 +                }
 +
@@ -689,7 +684,6 @@ index 0000000000000000000000000000000000000000..998a58dd7ee6c7a89dcef51bbb8a1663
 +                        && event.getWorld().equals(hologramLocation.getWorld())) {
 +                    if (player.getLocation().distanceSquared(hologramLocation) < viewDistance) {
 +                        Bukkit.getScheduler().runTaskLaterAsynchronously(new MinecraftInternalPlugin(), () -> {
-+//                            log.trace("Adding player viewer to hologram.");
 +                            castedHologram.onViewerAdded(player, false);
 +                        }, 20);
 +                    }
@@ -715,7 +709,6 @@ index 0000000000000000000000000000000000000000..998a58dd7ee6c7a89dcef51bbb8a1663
 +                final @NotNull Collection<Player> viewers = hologram.getViewers();
 +                final Location hologramLocation = hologram.getLocation();
 +                if (hologramLocation == null) {
-+                    //log.trace("Location is empty");
 +                    return;
 +                }
 +
@@ -725,7 +718,6 @@ index 0000000000000000000000000000000000000000..998a58dd7ee6c7a89dcef51bbb8a1663
 +                        && event.getFrom().equals(hologramLocation.getWorld())) {
 +                    if (player.getLocation().distanceSquared(hologramLocation) < viewDistance) {
 +                        Bukkit.getScheduler().runTaskLaterAsynchronously(new MinecraftInternalPlugin(), () -> {
-+//                            log.trace("Adding player viewer to hologram.");
 +                            castedHologram.onViewerAdded(player, false);
 +                        }, 20);
 +                    }
@@ -752,7 +744,6 @@ index 0000000000000000000000000000000000000000..998a58dd7ee6c7a89dcef51bbb8a1663
 +                final @NotNull Collection<Player> viewers = hologram.getViewers();
 +                final Location hologramLocation = hologram.getLocation();
 +                if (hologramLocation == null) {
-+//                    log.trace("Location is empty");
 +                    return;
 +                }
 +
@@ -763,7 +754,6 @@ index 0000000000000000000000000000000000000000..998a58dd7ee6c7a89dcef51bbb8a1663
 +                    if (event.getTo().distanceSquared(hologramLocation) < viewDistance
 +                            && event.getFrom().distanceSquared(hologramLocation) >= viewDistance) {
 +                        Bukkit.getScheduler().runTaskLaterAsynchronously(new MinecraftInternalPlugin(), () -> {
-+//                            log.trace("Adding player viewer to hologram.");
 +                            castedHologram.onViewerAdded(player, false);
 +                        }, 10);
 +                    } else if (event.getTo().distanceSquared(hologramLocation) >= viewDistance
@@ -771,7 +761,6 @@ index 0000000000000000000000000000000000000000..998a58dd7ee6c7a89dcef51bbb8a1663
 +
 +                        Bukkit.getScheduler().runTaskLaterAsynchronously(new MinecraftInternalPlugin(), () -> {
 +                            castedHologram.onViewerRemoved(player, false);
-+//                            log.trace("Removing player viewer from hologram");
 +                        }, 10);
 +                    }
 +                }
@@ -782,24 +771,19 @@ index 0000000000000000000000000000000000000000..998a58dd7ee6c7a89dcef51bbb8a1663
 +    }
 +
 +    public void destroy() {
-+        for (Hologram hologram : getActiveHolograms()
-+                .values()) {
-+            if (hologram instanceof AbstractHologram) {
-+                ((AbstractHologram) hologram).destroy(false);
-+            } else {
-+                hologram.destroy();
-+            }
-+        }
-+        getInstance().activeHolograms.clear();
++        Map.copyOf(getActiveHolograms())
++                .values()
++                .forEach(Hologram::destroy);
++        activeHolograms.clear();
 +    }
 +}
 \ No newline at end of file
 diff --git a/src/main/java/org/screamingsandals/lib/hologram/AbstractHologram.java b/src/main/java/org/screamingsandals/lib/hologram/AbstractHologram.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..6ffcc9918203d10fb11048c8feca99a32cda8523
+index 0000000000000000000000000000000000000000..eb7c20c0cdf5dbd23acac9697cac8026c1b34c90
 --- /dev/null
 +++ b/src/main/java/org/screamingsandals/lib/hologram/AbstractHologram.java
-@@ -0,0 +1,387 @@
+@@ -0,0 +1,381 @@
 +package org.screamingsandals.lib.hologram;
 +
 +
@@ -996,17 +980,11 @@ index 0000000000000000000000000000000000000000..6ffcc9918203d10fb11048c8feca99a3
 +    protected abstract void update0();
 +
 +    public void destroy() {
-+        destroy(true);
-+    }
-+
-+    public void destroy(boolean removeHologram) {
 +        data = null;
 +        hide();
 +        viewers.clear();
 +
-+        if (removeHologram) {
-+            BukkitHologramManager.removeHologram(this);
-+        }
++        BukkitHologramManager.removeHologram(this);
 +    }
 +
 +    public boolean isVisible() {

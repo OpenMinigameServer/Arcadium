@@ -91,7 +91,7 @@ index 3f0eff625e1c31a7da51f701943fcf46e847a819..4b1328e46da60efb064b9c0290ea8b68
  }
 diff --git a/src/main/java/org/screamingsandals/lib/bukkit/hologram/BukkitHologram.java b/src/main/java/org/screamingsandals/lib/bukkit/hologram/BukkitHologram.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..90c9e95bc31c695a5962b82c691f8f3c3122c1bc
+index 0000000000000000000000000000000000000000..5eb477e3180dee16ccd2016a1275bcdea86cd745
 --- /dev/null
 +++ b/src/main/java/org/screamingsandals/lib/bukkit/hologram/BukkitHologram.java
 @@ -0,0 +1,379 @@
@@ -232,8 +232,8 @@ index 0000000000000000000000000000000000000000..90c9e95bc31c695a5962b82c691f8f3c
 +    }
 +
 +    @Override
-+    public @NotNull Hologram item(@NotNull ItemStack item) {
-+        super.item(item);
++    public @NotNull Hologram setItem(@NotNull ItemStack item) {
++        super.setItem(item);
 +        if (ready) {
 +            viewers.forEach(player -> {
 +                try {
@@ -798,7 +798,7 @@ index 0000000000000000000000000000000000000000..c584ef427d7fa3586b6ed6e4082ccac2
 \ No newline at end of file
 diff --git a/src/main/java/org/screamingsandals/lib/hologram/AbstractHologram.java b/src/main/java/org/screamingsandals/lib/hologram/AbstractHologram.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..b34e5b75c71fb4c5f0b84c8562f47b77f90f7828
+index 0000000000000000000000000000000000000000..eb7c20c0cdf5dbd23acac9697cac8026c1b34c90
 --- /dev/null
 +++ b/src/main/java/org/screamingsandals/lib/hologram/AbstractHologram.java
 @@ -0,0 +1,381 @@
@@ -953,14 +953,14 @@ index 0000000000000000000000000000000000000000..b34e5b75c71fb4c5f0b84c8562f47b77
 +    }
 +
 +    @Override
-+    public @NotNull Hologram rotationTime(@NotNull Integer rotatingTime) {
++    public @NotNull Hologram setRotationTime(@NotNull Integer rotatingTime) {
 +        this.rotationTime = rotatingTime;
 +        update();
 +        return this;
 +    }
 +
 +    @Override
-+    public @NotNull Hologram rotationMode(@NotNull RotationMode mode) {
++    public @NotNull Hologram setRotationMode(@NotNull RotationMode mode) {
 +        this.rotationMode = mode;
 +        update();
 +        return this;
@@ -972,20 +972,20 @@ index 0000000000000000000000000000000000000000..b34e5b75c71fb4c5f0b84c8562f47b77
 +    }
 +
 +    @Override
-+    public @NotNull Hologram item(@NotNull ItemStack item) {
++    public @NotNull Hologram setItem(@NotNull ItemStack item) {
 +        this.item = item;
 +        update();
 +        return this;
 +    }
 +
 +    @Override
-+    public @NotNull Hologram rotationIncrement(float toIncrement) {
++    public @NotNull Hologram setRotationIncrement(float toIncrement) {
 +        this.rotationIncrement = toIncrement;
 +        return this;
 +    }
 +
 +    @Override
-+    public @NotNull Hologram itemPosition(@NotNull ItemPosition location) {
++    public @NotNull Hologram setItemPosition(@NotNull ItemPosition location) {
 +        this.itemPosition = location;
 +        update();
 +        return this;
@@ -1023,29 +1023,29 @@ index 0000000000000000000000000000000000000000..b34e5b75c71fb4c5f0b84c8562f47b77
 +    }
 +
 +    @NotNull
-+    public Hologram title(@NotNull Component title) {
-+        return firstLine(title);
++    public Hologram setTitle(@NotNull Component title) {
++        return setFirstLine(title);
 +    }
 +
 +    @NotNull
-+    public Hologram firstLine(@NotNull Component text) {
-+        return newLine(0, text);
++    public Hologram setFirstLine(@NotNull Component text) {
++        return createNewLine(0, text);
 +    }
 +
 +    @NotNull
-+    public Hologram firstLine(@NotNull TextEntry text) {
-+        return newLine(0, text);
++    public Hologram setFirstLine(@NotNull TextEntry text) {
++        return createNewLine(0, text);
 +    }
 +
 +    @NotNull
-+    public Hologram bottomLine(@NotNull Component text) {
-+        return bottomLine(TextEntry.of(text));
++    public Hologram setBottomLine(@NotNull Component text) {
++        return setBottomLine(TextEntry.of(text));
 +    }
 +
 +    @NotNull
-+    public Hologram bottomLine(@NotNull TextEntry text) {
++    public Hologram setBottomLine(@NotNull TextEntry text) {
 +        if (lines.isEmpty()) {
-+            return firstLine(text);
++            return setFirstLine(text);
 +        }
 +
 +        originalLinesSize = lines.size();
@@ -1058,11 +1058,11 @@ index 0000000000000000000000000000000000000000..b34e5b75c71fb4c5f0b84c8562f47b77
 +    public Hologram replaceLine(@NotNull TextEntry text) {
 +        final String identifier = text.getIdentifier();
 +        if (identifier.isEmpty()) {
-+            return bottomLine(text);
++            return setBottomLine(text);
 +        }
 +
 +        @NotNull final Optional<Map.Entry<Integer, TextEntry>> line = getLineByIdentifier(text.getIdentifier());
-+        return line.map(integerTextEntryEntry -> replaceLine(integerTextEntryEntry.getKey(), text)).orElseGet(() -> bottomLine(text));
++        return line.map(integerTextEntryEntry -> replaceLine(integerTextEntryEntry.getKey(), text)).orElseGet(() -> setBottomLine(text));
 +    }
 +
 +    @NotNull
@@ -1073,7 +1073,7 @@ index 0000000000000000000000000000000000000000..b34e5b75c71fb4c5f0b84c8562f47b77
 +    @NotNull
 +    public Hologram replaceLine(@NotNull Integer where, @NotNull TextEntry text) {
 +        if (!lines.containsKey(where)) {
-+            return newLine(where, text);
++            return createNewLine(where, text);
 +        }
 +        originalLinesSize = lines.size();
 +        lines.put(where, text);
@@ -1109,12 +1109,12 @@ index 0000000000000000000000000000000000000000..b34e5b75c71fb4c5f0b84c8562f47b77
 +    }
 +
 +    @NotNull
-+    public Hologram newLine(@NotNull Integer where, @NotNull Component text) {
-+        return newLine(where, TextEntry.of(text));
++    public Hologram createNewLine(@NotNull Integer where, @NotNull Component text) {
++        return createNewLine(where, TextEntry.of(text));
 +    }
 +
 +    @NotNull
-+    public Hologram newLine(@NotNull Integer where, @NotNull TextEntry text) {
++    public Hologram createNewLine(@NotNull Integer where, @NotNull TextEntry text) {
 +        originalLinesSize = lines.size();
 +        lines = VisualUtils.addEntryAndMoveRest(lines, where, text);
 +        update();

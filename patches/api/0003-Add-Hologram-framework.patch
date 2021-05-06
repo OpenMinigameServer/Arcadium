@@ -108,7 +108,7 @@ index 0a3acc1aa156900aa2a6a5682ffb8c3dc25e7534..1e3728eec3bae6bda75918a924a8dc4b
  }
 diff --git a/src/main/java/org/screamingsandals/lib/hologram/Hologram.java b/src/main/java/org/screamingsandals/lib/hologram/Hologram.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..73c2e231dcbae1e1b65a53b505ed243f0d8210d4
+index 0000000000000000000000000000000000000000..150e7fed2b486a4962a4b75998116df12ecda544
 --- /dev/null
 +++ b/src/main/java/org/screamingsandals/lib/hologram/Hologram.java
 @@ -0,0 +1,324 @@
@@ -172,7 +172,7 @@ index 0000000000000000000000000000000000000000..73c2e231dcbae1e1b65a53b505ed243f
 +     * @param rotatingTime Amount of time in ticks.
 +     * @return this hologram
 +     */
-+    @NotNull Hologram rotationTime(@NotNull Integer rotatingTime);
++    @NotNull Hologram setRotationTime(@NotNull Integer rotatingTime);
 +
 +    /**
 +     * @return current rotation mode
@@ -185,7 +185,7 @@ index 0000000000000000000000000000000000000000..73c2e231dcbae1e1b65a53b505ed243f
 +     * @param mode rotation mode
 +     * @return this hologram
 +     */
-+    @NotNull Hologram rotationMode(@NotNull RotationMode mode);
++    @NotNull Hologram setRotationMode(@NotNull RotationMode mode);
 +
 +    /**
 +     * Stands for how much should this hologram rotate per one cycle
@@ -193,7 +193,7 @@ index 0000000000000000000000000000000000000000..73c2e231dcbae1e1b65a53b505ed243f
 +     * @param toIncrement
 +     * @return
 +     */
-+    @NotNull Hologram rotationIncrement(float toIncrement);
++    @NotNull Hologram setRotationIncrement(float toIncrement);
 +
 +    /**
 +     * Changes the item to show
@@ -201,7 +201,7 @@ index 0000000000000000000000000000000000000000..73c2e231dcbae1e1b65a53b505ed243f
 +     * @param item item to show
 +     * @return this hologram
 +     */
-+    @NotNull Hologram item(@NotNull ItemStack item);
++    @NotNull Hologram setItem(@NotNull ItemStack item);
 +
 +    /**
 +     * Position of the item shown as hologram
@@ -209,7 +209,7 @@ index 0000000000000000000000000000000000000000..73c2e231dcbae1e1b65a53b505ed243f
 +     * @param position position of the item
 +     * @return this hologram
 +     */
-+    @NotNull Hologram itemPosition(@NotNull ItemPosition position);
++    @NotNull Hologram setItemPosition(@NotNull ItemPosition position);
 +
 +    /**
 +     * @return current item position
@@ -250,7 +250,7 @@ index 0000000000000000000000000000000000000000..73c2e231dcbae1e1b65a53b505ed243f
 +    Hologram clearViewers();
 +
 +    @NotNull
-+    Hologram title(@NotNull Component title);
++    Hologram setTitle(@NotNull Component title);
 +
 +    /**
 +     * Checks if this Visual has any viewers.
@@ -288,7 +288,7 @@ index 0000000000000000000000000000000000000000..73c2e231dcbae1e1b65a53b505ed243f
 +     * @return this visual
 +     */
 +    @NotNull
-+    Hologram firstLine(@NotNull Component text);
++    Hologram setFirstLine(@NotNull Component text);
 +
 +    /**
 +     * Adds new line to this visual and moves everything else 1 line down.
@@ -297,7 +297,7 @@ index 0000000000000000000000000000000000000000..73c2e231dcbae1e1b65a53b505ed243f
 +     * @return this visual
 +     */
 +    @NotNull
-+    Hologram firstLine(@NotNull TextEntry text);
++    Hologram setFirstLine(@NotNull TextEntry text);
 +
 +    /**
 +     * Adds new line to the bottom of this visual.
@@ -305,7 +305,7 @@ index 0000000000000000000000000000000000000000..73c2e231dcbae1e1b65a53b505ed243f
 +     * @param text text to add
 +     * @return this visual
 +     */
-+    @NotNull Hologram bottomLine(@NotNull Component text);
++    @NotNull Hologram setBottomLine(@NotNull Component text);
 +
 +    /**
 +     * Adds new line to the bottom of this visual.
@@ -313,7 +313,7 @@ index 0000000000000000000000000000000000000000..73c2e231dcbae1e1b65a53b505ed243f
 +     * @param text text to add
 +     * @return this visual
 +     */
-+    @NotNull Hologram bottomLine(@NotNull TextEntry text);
++    @NotNull Hologram setBottomLine(@NotNull TextEntry text);
 +
 +    /**
 +     * Replaces a line that has {@link TextEntry#getIdentifier()} on it.
@@ -372,7 +372,7 @@ index 0000000000000000000000000000000000000000..73c2e231dcbae1e1b65a53b505ed243f
 +     * @param text  text to add
 +     * @return this visual
 +     */
-+    @NotNull Hologram newLine(@NotNull Integer where, @NotNull Component text);
++    @NotNull Hologram createNewLine(@NotNull Integer where, @NotNull Component text);
 +
 +    /**
 +     * Creates a new line and moves everything bellow if anything is already on that line.
@@ -382,7 +382,7 @@ index 0000000000000000000000000000000000000000..73c2e231dcbae1e1b65a53b505ed243f
 +     * @return this visual
 +     */
 +    @NotNull
-+    Hologram newLine(@NotNull Integer where, @NotNull TextEntry text);
++    Hologram createNewLine(@NotNull Integer where, @NotNull TextEntry text);
 +
 +    /**
 +     * Removes line on given location.
